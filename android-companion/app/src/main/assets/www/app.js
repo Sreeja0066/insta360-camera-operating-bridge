@@ -326,23 +326,25 @@ function handleCanvasTap(clientX, clientY) {
     const relX = x / canvas.width;
     const relY = y / canvas.height;
 
-    if (!startPoint) {
-        // Set start point
+    if (!isRecording) {
+        // Before recording: tap sets/moves start point
         startPoint = { x: relX, y: relY };
+        stopPoint = null; // clear stop point if re-setting start
+        document.getElementById('stopLegend').style.display = 'none';
         drawLayout(); // Redraw with marker
         document.getElementById('startLegend').style.display = 'flex';
         document.getElementById('startRecordBtn').disabled = false;
         document.getElementById('instructionBar').innerHTML =
-            'Start point set ✅ — Press <strong>START RECORDING</strong>';
+            'Start point set ✅ — Tap to move, or press <strong>START RECORDING</strong>';
         layoutLog('Start point set at (' + relX.toFixed(2) + ', ' + relY.toFixed(2) + ')');
-    } else if (isRecording && !stopPoint) {
-        // Set stop point (only during recording)
+    } else if (isRecording) {
+        // During recording: tap sets/moves stop point
         stopPoint = { x: relX, y: relY };
         drawLayout(); // Redraw with both markers
         document.getElementById('stopLegend').style.display = 'flex';
         document.getElementById('stopRecordBtn').disabled = false;
         document.getElementById('instructionBar').innerHTML =
-            'Stop point set ✅ — Press <strong>STOP RECORDING</strong>';
+            'Stop point set ✅ — Tap to move, or press <strong>STOP RECORDING</strong>';
         layoutLog('Stop point set at (' + relX.toFixed(2) + ', ' + relY.toFixed(2) + ')');
     }
 }
