@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Insta360 Bridge</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Hamburger Menu Button (always visible on all pages) -->
+    <div class="hamburger" id="menuToggle" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Menu Overlay -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+
+    <!-- Side Menu -->
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-header">
+            <span class="menu-logo">🎥</span>
+            <span>Insta360 Bridge</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" onclick="navigateTo('camera')">
+            <span class="menu-icon">📷</span>
+            <span>Connect to Camera</span>
+        </div>
+        <div class="menu-item" onclick="navigateTo('layout')">
+            <span class="menu-icon">📐</span>
+            <span>Upload Layout</span>
+        </div>
+        <div class="menu-item" onclick="navigateTo('gallery')">
+            <span class="menu-icon">🎬</span>
+            <span>Saved Videos</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" onclick="toggleTestMode()">
+            <span class="menu-icon">🧪</span>
+            <span id="testModeLabel">Test Mode: OFF</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-status">
+            <div class="status-dot disconnected" id="menuStatusDot"></div>
+            <span id="menuStatusText">Disconnected</span>
+        </div>
+    </div>
+
+    <!-- ===== PAGE: WELCOME ===== -->
+    <div class="page active" id="page-welcome">
+        <div class="welcome-content">
+            <div class="welcome-icon-wrap">
+                <div class="welcome-icon">🎥</div>
+                <div class="welcome-glow"></div>
+            </div>
+            <h1 class="welcome-title">Insta360 Bridge</h1>
+            <p class="welcome-subtitle">360° Recording Controller</p>
+
+            <div class="welcome-status" id="welcomeStatusBadge">
+                <div class="status-dot disconnected" id="welcomeStatusDot"></div>
+                <span id="welcomeStatusText">Camera Disconnected</span>
+            </div>
+
+            <div class="welcome-buttons">
+                <button class="btn-welcome primary" onclick="navigateTo('camera')">
+                    <span class="btn-icon">📷</span> Connect to Camera
+                </button>
+                <button class="btn-welcome secondary" onclick="navigateTo('layout')">
+                    <span class="btn-icon">📐</span> Upload Layout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PAGE: CONNECT TO CAMERA ===== -->
+    <div class="page" id="page-camera">
+        <div class="page-header">
+            <h2>Connect to Camera</h2>
+        </div>
+
+        <div class="page-body">
+            <div class="camera-card">
+                <div class="status-badge" id="cameraStatusBadge">
+                    <div class="status-dot disconnected" id="cameraStatusDot"></div>
+                    <span id="cameraStatusText">Disconnected</span>
+                </div>
+
+                <button class="btn-scan" onclick="scanForCameras()">
+                    🔍 Scan for Cameras
+                </button>
+
+                <div class="wifi-list" id="wifiList" style="display: none;"></div>
+            </div>
+
+            <div class="logs" id="logContainer">
+                <div>[System] Ready to connect...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PAGE: UPLOAD LAYOUT ===== -->
+    <div class="page" id="page-layout">
+        <div class="page-header">
+            <h2>Layout & Recording</h2>
+            <div class="conn-badge" id="layoutConnBadge">
+                <div class="status-dot-sm disconnected" id="layoutStatusDot"></div>
+                <span id="layoutStatusText">Offline</span>
+            </div>
+        </div>
+
+        <div class="page-body">
+            <!-- Upload Zone (shown when no layout loaded) -->
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon-big">📤</div>
+                <p class="upload-text">Tap to Upload Layout</p>
+                <p class="upload-hint">Upload a floor plan or map image</p>
+                <input type="file" id="fileInput" accept="image/*" style="display:none;"
+                    onchange="handleFileUpload(event)">
+            </div>
+
+            <!-- Canvas Container (hidden until layout uploaded) -->
+            <div class="canvas-wrapper" id="canvasWrapper" style="display: none;">
+                <canvas id="layoutCanvas"></canvas>
+
+                <div class="point-legend" id="pointLegend">
+                    <div class="legend-item" id="startLegend" style="display:none;">
+                        <span class="legend-dot start"></span> Start
+                    </div>
+                    <div class="legend-item" id="stopLegend" style="display:none;">
+                        <span class="legend-dot stop"></span> Stop
+                    </div>
+                </div>
+
+                <div class="instruction-bar" id="instructionBar">
+                    Tap on the map to set a <strong>start point</strong>
+                </div>
+            </div>
+
+            <!-- Recording Controls -->
+            <div class="recording-controls" id="recordingControls" style="display: none;">
+                <button class="btn-record start-btn" id="startRecordBtn" onclick="handleStartRecording()" disabled>
+                    ⏺ START RECORDING
+                </button>
+                <button class="btn-record stop-btn" id="stopRecordBtn" onclick="handleStopRecording()"
+                    style="display: none;" disabled>
+                    ⏹ STOP RECORDING
+                </button>
+
+                <div class="control-row">
+                    <button class="btn-util" onclick="resetPoints()">🔄 Reset Points</button>
+                    <button class="btn-util" onclick="changeLayout()">📤 Change Layout</button>
+                </div>
+            </div>
+
+            <!-- Recording Status Indicator -->
+            <div class="rec-status" id="recStatus" style="display: none;">
+                <div class="rec-pulse"></div>
+                <span class="rec-label">REC</span>
+                <span class="rec-timer" id="recTimer">00:00</span>
+            </div>
+
+            <!-- Layout page logs -->
+            <div class="logs" id="layoutLogContainer">
+                <div>[System] Ready...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PAGE: SAVED VIDEOS / GALLERY ===== -->
+    <div class="page" id="page-gallery">
+        <div class="page-header">
+            <h2>Saved Videos</h2>
+            <div class="gallery-count" id="galleryCount">0 recordings</div>
+        </div>
+
+        <div class="page-body">
+            <!-- Empty state -->
+            <div class="gallery-empty" id="galleryEmpty">
+                <div class="gallery-empty-icon">🎬</div>
+                <p class="gallery-empty-title">No recordings yet</p>
+                <p class="gallery-empty-hint">Complete a recording on the Layout page to see it here</p>
+                <button class="btn-welcome secondary" onclick="navigateTo('layout')" style="margin-top: 12px;">
+                    <span class="btn-icon">📐</span> Go to Layout
+                </button>
+            </div>
+
+            <!-- Video list (populated by JS) -->
+            <div class="gallery-list" id="galleryList" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- ===== PASSWORD MODAL ===== -->
+    <div class="modal" id="passwordModal" style="display: none;">
+        <div class="modal-content">
+            <h3>Connect to Camera</h3>
+            <p id="modalSsid" class="modal-sub">Network Name</p>
+            <input type="password" id="modalPassword" placeholder="Enter Password" value="88888888" class="modal-input">
+            <div class="modal-actions">
+                <button class="btn-modal primary" onclick="handleModalConnect()">Connect</button>
+                <button class="btn-modal cancel" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

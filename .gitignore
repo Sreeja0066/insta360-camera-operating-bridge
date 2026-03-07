@@ -1,0 +1,24 @@
+node_modules/
+recordings/
+recordings_metadata.json
+build/
+*.log
+.DS_Store
+.idea/
+sdk_demo_1.9.4/
+Windows_CameraSDK*/
+
+# Android build artifacts
+android-companion/.gradle/
+android-companion/build/
+android-companion/app/build/
+android-companion/local.properties
+*.apk
+*.aab
+
+# Large SDK binaries (download separately)
+*.dll
+*.so
+*.aar
+*.zip
+*.hprof

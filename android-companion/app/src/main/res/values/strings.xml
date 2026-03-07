@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Insta360 Bridge</string>
+    <string name="server_status_running">Server Running on Port 8080</string>
+    <string name="server_status_stopped">Server Stopped</string>
+    <string name="camera_status_disconnected">Camera: Disconnected</string>
+    <string name="camera_status_connected">Camera: Connected</string>
+    <string name="action_start_server">Start Server</string>
+    <string name="action_stop_server">Stop Server</string>
+</resources>
