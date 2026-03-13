@@ -1,0 +1,56 @@
+# Insta360 Bridge — Walkthrough
+
+## Phase 1: Cleanup
+Removed all unused components: `server/`, `sdks/`, `shared/`, `web-companion/`, `old_frontend/`, `node_modules/`, `build/`, `recordings/`, scripts, and 19 doc files. Project now only contains `android-companion/` and SDK reference dirs.
+
+## Phase 2: Saved Videos Gallery Page
+Added **🎬 Saved Videos** page to the hamburger menu. Shows recording cards with date, duration, start/stop coordinates, and settings chips. Auto-loads when navigated to.
+
+**Files:** [index.html](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/assets/www/index.html), [styles.css](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/assets/www/styles.css), [app.js](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/assets/www/app.js)
+
+## Export Pipeline
+
+### Architecture
+```
+Recording Stops → onCaptureFinish() stores file paths
+       ↓
+Auto-export triggered → WebAppInterface.exportRecording(id)
+       ↓
+VideoExporter.exportBothResolutions()
+       ↓
+├── 8K Export (7680×3840, 30fps, 100Mbps, H264, MP4)
+│   ├── FlowState Stabilization ✅
+│   ├── Dynamic Stitching ✅
+│   ├── Chromatic Calibration ✅
+│   └── Image Fusion ✅
+└── 1080P Export (1920×960, 30fps, 20Mbps, H264, MP4)
+    └── Same settings as 8K
+       ↓
+Progress → JS callback → Layout log
+Success → Toast notification
+Output → /Android/data/com.example.insta360bridge/files/Movies/Insta360Bridge/
+```
+
+### Files Created/Modified
+
+#### [NEW] [VideoExporter.kt](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/java/com/example/insta360bridge/VideoExporter.kt)
+Uses exact same SDK patterns as the official demo ([ExportVideoParamsBuilder](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/sdk_demo_1.9.4/sdkdemo2/app/src/main/java/com/arashivision/sdk/demo/ui/play/WorkPlayViewModel.kt#168-196), `ExportUtils.exportVideo`, `IExportCallback`). Settings:
+- `stabType = InstaStabType.STAB_TYPE_AUTO` (FlowState)
+- `isDynamicStitch = true`
+- `isDePurpleFilterOn = true` (Chromatic Calibration)
+- `isImageFusion = true` (Lens Stitching)
+- `exportMode = ExportMode.PANORAMA`
+
+#### [MODIFIED] [CameraControl.kt](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/java/com/example/insta360bridge/CameraControl.kt)
+- Added `lastCapturedFilePaths` to store `.insv` paths from [onCaptureFinish](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/java/com/example/insta360bridge/CameraControl.kt#135-142)
+
+#### [MODIFIED] [WebAppInterface.kt](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/java/com/example/insta360bridge/WebAppInterface.kt)
+- Added [exportRecording(recordingId)](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/java/com/example/insta360bridge/WebAppInterface.kt#211-252) — triggers dual-resolution export
+- Added [getExportedFiles()](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/java/com/example/insta360bridge/WebAppInterface.kt#253-274) — returns list of exported MP4s as JSON
+
+#### [MODIFIED] [app.js](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/assets/www/app.js)
+- Auto-exports after recording stops (if not in test mode)
+- Added [onExportProgress](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/assets/www/app.js#530-534), [onExportSuccess](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/assets/www/app.js#535-539), [onExportFailed](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/assets/www/app.js#540-544) callbacks
+- Added [exportFromGallery()](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/assets/www/app.js#545-554) for re-exporting from Saved Videos page
+- Gallery cards now have 📤 **Export** button
+- [saveRecordingData()](file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/android-companion/app/src/main/assets/www/app.js#501-521) now returns recording ID for export linking

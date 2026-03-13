@@ -15,7 +15,7 @@ class WebAppInterface(
     private val cameraControl: CameraControl,
     private val webView: WebView
 ) {
-
+    private val driveUploader = DriveUploader(mContext)
     private var demoMode = false
 
     companion object {
@@ -270,5 +270,83 @@ class WebAppInterface(
             Log.e(TAG, "Error getting exported files: ${e.message}")
             "[]"
         }
+    }
+
+    // ===== GOOGLE DRIVE =====
+
+    @JavascriptInterface
+    fun signInToDrive() {
+        Log.d(TAG, "JS called signInToDrive")
+        if (mContext is MainActivity) {
+            mainHandler.post {
+                mContext.signInToDrive()
+            }
+        }
+    }
+
+    @JavascriptInterface
+    fun getDriveSignInStatus(): String {
+        Log.d(TAG, "JS called getDriveSignInStatus")
+        if (mContext is MainActivity) {
+            return mContext.getDriveSignInStatus() ?: ""
+        }
+        return ""
+    }
+
+    @JavascriptInterface
+    fun uploadToDrive(filePath: String) {
+        Log.d(TAG, "JS called uploadToDrive: $filePath")
+        val file = File(filePath)
+        if (!file.exists()) {
+            callJs("if(window.onDriveUploadFailed) window.onDriveUploadFailed('File does not exist: $filePath')")
+            return
+        }
+
+        driveUploader.uploadFile(file, object : DriveUploader.UploadCallback {
+            override fun onProgress(progress: Int) {
+                callJs("if(window.onDriveUploadProgress) window.onDriveUploadProgress($progress)")
+            }
+
+            override fun onSuccess(fileId: String) {
+                callJs("if(window.onDriveUploadSuccess) window.onDriveUploadSuccess('$fileId')")
+            }
+
+            override fun onError(error: String) {
+                val safeError = error.replace("'", "\\'")
+                callJs("if(window.onDriveUploadFailed) window.onDriveUploadFailed('$safeError')")
+            }
+
+            override fun onQueued(filePath: String) {
+                callJs("if(window.onDriveUploadQueued) window.onDriveUploadQueued('$filePath')")
+            }
+        })
+    }
+
+    @JavascriptInterface
+    fun uploadPendingFiles() {
+        Log.d(TAG, "JS called uploadPendingFiles")
+        driveUploader.uploadPendingFiles(object : DriveUploader.UploadCallback {
+            override fun onProgress(progress: Int) {
+                callJs("if(window.onDriveUploadProgress) window.onDriveUploadProgress($progress)")
+            }
+
+            override fun onSuccess(fileId: String) {
+                callJs("if(window.onDriveUploadSuccess) window.onDriveUploadSuccess('$fileId')")
+            }
+
+            override fun onError(error: String) {
+                val safeError = error.replace("'", "\\\\'")
+                callJs("if(window.onDriveUploadFailed) window.onDriveUploadFailed('$safeError')")
+            }
+
+            override fun onQueued(filePath: String) {
+                callJs("if(window.onDriveUploadQueued) window.onDriveUploadQueued('$filePath')")
+            }
+        })
+    }
+
+    @JavascriptInterface
+    fun getPendingUploadCount(): Int {
+        return driveUploader.getPendingFiles().size
     }
 }

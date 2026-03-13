@@ -537,6 +537,18 @@ window.onExportProgress = function (pct, resolution) {
 window.onExportSuccess = function (path, resolution) {
     layoutLog('Export [' + resolution + '] complete ✅');
     showToast(resolution + ' export done! ✅');
+
+    // Automatically upload to Google Drive if signed in
+    if (typeof AndroidBridge !== 'undefined') {
+        var email = AndroidBridge.getDriveSignInStatus();
+        if (email) {
+            layoutLog('Starting Google Drive upload for ' + resolution + '...');
+            showToast('Uploading to Drive... ☁️');
+            AndroidBridge.uploadToDrive(path);
+        } else {
+            layoutLog('Google Drive not linked. Skipping upload.');
+        }
+    }
 };
 
 window.onExportFailed = function (error, resolution) {
@@ -567,6 +579,68 @@ function resetPoints() {
     if (layoutImageObj) drawLayout();
     layoutLog('Points reset.');
 }
+
+// ===== GOOGLE DRIVE =====
+function handleDriveLink() {
+    if (typeof AndroidBridge !== 'undefined') {
+        var status = AndroidBridge.getDriveSignInStatus();
+        if (status) {
+            var pending = AndroidBridge.getPendingUploadCount();
+            if (pending > 0) {
+                showToast('Linked: ' + status + ' | ' + pending + ' uploads pending. Uploading now...');
+                AndroidBridge.uploadPendingFiles();
+            } else {
+                showToast('Linked to: ' + status + ' | No pending uploads');
+            }
+        } else {
+            showToast('Opening Google Sign-In...');
+            AndroidBridge.signInToDrive();
+        }
+    } else {
+        showToast('Drive linking not available');
+    }
+}
+
+function updateDriveStatus() {
+    if (typeof AndroidBridge !== 'undefined') {
+        var email = AndroidBridge.getDriveSignInStatus();
+        const textEl = document.getElementById('driveLinkText');
+        if (email && textEl) {
+            textEl.innerText = 'Linked: ' + email;
+            textEl.style.color = '#22c55e';
+        }
+    }
+}
+
+window.onDriveSignInSuccess = function (email) {
+    showToast('Linked to Google Drive! ✅');
+    log('Google Drive linked: ' + email);
+    updateDriveStatus();
+};
+
+window.onDriveSignInFailed = function (error) {
+    showToast('Drive linking failed: ' + error);
+    log('Drive linking error: ' + error);
+};
+
+window.onDriveUploadProgress = function (pct) {
+    layoutLog('Drive Upload: ' + pct + '%');
+};
+
+window.onDriveUploadSuccess = function (fileId) {
+    showToast('Uploaded to Google Drive! ☁️✅');
+    layoutLog('Drive upload complete. File ID: ' + fileId);
+};
+
+window.onDriveUploadFailed = function (error) {
+    showToast('Drive upload failed: ' + error);
+    layoutLog('Drive upload error: ' + error);
+};
+
+window.onDriveUploadQueued = function (filePath) {
+    showToast('No internet — queued for upload when online ⏳');
+    layoutLog('Queued for Drive upload (no internet): ' + filePath.split('/').pop());
+};
 
 // ===== GALLERY / SAVED VIDEOS =====
 function loadGallery() {
@@ -677,6 +751,9 @@ if (typeof AndroidBridge !== 'undefined') {
     // Check initial status
     var status = AndroidBridge.getStatus();
     if (status) window.updateStatus(status);
+
+    // Check Drive status
+    updateDriveStatus();
 }
 
 // Global exposure

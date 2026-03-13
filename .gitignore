@@ -1,24 +1,45 @@
+# --- YOUR ORIGINAL RULES ---
 node_modules/
 recordings/
 recordings_metadata.json
-build/
-*.log
-.DS_Store
-.idea/
-sdk_demo_1.9.4/
-Windows_CameraSDK*/
-
-# Android build artifacts
-android-companion/.gradle/
-android-companion/build/
-android-companion/app/build/
-android-companion/local.properties
-*.apk
-*.aab
-
-# Large SDK binaries (download separately)
 *.dll
 *.so
 *.aar
 *.zip
 *.hprof
+
+# --- NEW: SDKs & LARGE FOLDERS (The 9k+ file fix) ---
+sdk_demo_1.9.4/
+Windows_CameraSDK*/
+iOS_v1.9.2/
+
+# --- NEW: ANDROID & GRADLE ---
+.gradle/
+.gradle-home/
+**/android-companion/.gradle/
+**/android-companion/.gradle-home/
+**/android-companion/build/
+**/android-companion/temp_aar/
+android-companion/local.properties
+*.apk
+*.aab
+
+# --- NEW: FLUTTER & IDE ---
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+insta360-bridge-flutter/build/
+.idea/
+.vscode/
+*.iml
+
+# --- SYSTEM FILES ---
+.DS_Store
+*.log
+
+
+# Add this line to catch the underscore version
+.gradle_home/
+**/.gradle_home/

@@ -14,6 +14,12 @@ import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.Scope
+import com.google.api.services.drive.DriveScopes
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,7 +33,10 @@ class MainActivity : AppCompatActivity() {
     private val FILE_CHOOSER_REQUEST_CODE = 2001
 
     private val PERMISSION_REQUEST_CODE = 1001
+    private val GOOGLE_SIGN_IN_REQUEST_CODE = 1002
     private var previousStatus = "DISCONNECTED"
+
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     companion object {
         const val TAG = "MainActivity"
@@ -43,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         setupWebView()
         checkPermissions()
+        setupGoogleSignIn()
 
         // WiFi scan results → send to WebView JS
         wifiHelper.onScanResults = { results ->
@@ -136,6 +146,24 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl("file:///android_asset/www/index.html")
     }
 
+    private fun setupGoogleSignIn() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestScopes(Scope(DriveScopes.DRIVE_FILE))
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+    }
+
+    fun signInToDrive() {
+        Log.d(TAG, "Starting Google Sign-In...")
+        val signInIntent = googleSignInClient.signInIntent
+        startActivityForResult(signInIntent, GOOGLE_SIGN_IN_REQUEST_CODE)
+    }
+
+    fun getDriveSignInStatus(): String? {
+        return GoogleSignIn.getLastSignedInAccount(this)?.email
+    }
+
     // Handle file chooser result
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -148,6 +176,16 @@ class MainActivity : AppCompatActivity() {
                 fileUploadCallback?.onReceiveValue(null)
             }
             fileUploadCallback = null
+        } else if (requestCode == GOOGLE_SIGN_IN_REQUEST_CODE) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
+                Log.d(TAG, "Sign-in successful: ${account?.email}")
+                webView.evaluateJavascript("if(window.onDriveSignInSuccess) onDriveSignInSuccess('${account?.email}')", null)
+            } catch (e: Exception) {
+                Log.e(TAG, "Sign-in failed: ${e.message}")
+                webView.evaluateJavascript("if(window.onDriveSignInFailed) onDriveSignInFailed('${e.message}')", null)
+            }
         }
     }
 
