@@ -1,0 +1,1086 @@
+{
+    "scale6": [
+        {
+            "width": "128",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x128_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "96",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x96_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "72",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x72_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "54",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x54_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "300",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x300_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "227",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x227_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "170",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x170_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "256",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x256_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "64",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x64_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "360",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x360_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "270",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x270_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "202",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x202_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "153",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x153_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "846",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x846_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "640",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x640_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "480",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x480_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "720",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x720_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "180",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x180_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "720",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x720_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "540",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x540_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "405",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x405_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "306",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x306_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1692",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x1692_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1280",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x1280_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "960",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x960_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1440",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x1440_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "360",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x360_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1080",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x1080_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "810",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x810_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "607",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x607_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "459",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x459_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2538",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x2538_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1920",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x1920_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1440",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x1440_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2160",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x2160_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "540",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x540_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1440",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x1440_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1080",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x1080_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "810",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x810_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "612",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x612_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "3384",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x3384_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2560",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x2560_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1920",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x1920_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2880",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x2880_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "720",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x720_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2160",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x2160_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1620",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x1620_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1215",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x1215_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "919",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x919_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "5076",
+            "height": "2160",
+            "model": "defringe_fixed_hr_2160x5076_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3840",
+            "height": "2160",
+            "model": "defringe_fixed_hr_2160x3840_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2880",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x2880_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "4320",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x4320_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1080",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x1080_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2880",
+            "height": "2880",
+            "model": "defringe_fixed_hr_2880x2880_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2160",
+            "height": "2880",
+            "model": "defringe_fixed_lr_2880x2160_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1620",
+            "height": "2880",
+            "model": "defringe_fixed_lr_2880x1620_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1225",
+            "height": "2880",
+            "model": "defringe_fixed_lr_2880x1225_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "6768",
+            "height": "2880",
+            "model": "defringe_fixed_hr_2880x6768_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "5120",
+            "height": "2880",
+            "model": "defringe_fixed_hr_2880x5120_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3840",
+            "height": "2880",
+            "model": "defringe_fixed_hr_2880x3840_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "5760",
+            "height": "2880",
+            "model": "defringe_fixed_hr_2880x5760_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "1440",
+            "height": "2880",
+            "model": "defringe_fixed_lr_2880x1440_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "3000",
+            "height": "3000",
+            "model": "defringe_fixed_hr_3000x3000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2250",
+            "height": "3000",
+            "model": "defringe_fixed_lr_3000x2250_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1687",
+            "height": "3000",
+            "model": "defringe_fixed_lr_3000x1687_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1276",
+            "height": "3000",
+            "model": "defringe_fixed_lr_3000x1276_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "7050",
+            "height": "3000",
+            "model": "defringe_fixed_hr_3000x7050_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "5333",
+            "height": "3000",
+            "model": "defringe_fixed_hr_3000x5333_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "4000",
+            "height": "3000",
+            "model": "defringe_fixed_hr_3000x4000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "6000",
+            "height": "3000",
+            "model": "defringe_fixed_hr_3000x6000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "1500",
+            "height": "3000",
+            "model": "defringe_fixed_lr_3000x1500_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "3840",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x3840_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2880",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x2880_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2160",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x2160_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "1634",
+            "height": "3840",
+            "model": "defringe_fixed_lr_3840x1634_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "9024",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x9024_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "6826",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x6826_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "5120",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x5120_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "7680",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x7680_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "1920",
+            "height": "3840",
+            "model": "defringe_fixed_lr_3840x1920_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "4000",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x4000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3000",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x3000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2250",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x2250_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "1702",
+            "height": "4000",
+            "model": "defringe_fixed_lr_4000x1702_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "9400",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x9400_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "7111",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x7111_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "5333",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x5333_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "8000",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x8000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2000",
+            "height": "4000",
+            "model": "defringe_fixed_lr_4000x2000_scale6_e28c1212.mlmodelc"
+        },
+        {
+            "width": "6000",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x6000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "4500",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x4500_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3375",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x3375_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2553",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x2553_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "14100",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x14100_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "10666",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x10666_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "8000",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x8000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "12000",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x12000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3000",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x3000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "8000",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x8000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "6000",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x6000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "4500",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x4500_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3404",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x3404_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "18800",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x18800_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "14222",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x14222_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "10666",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x10666_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "16000",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x16000_scale6_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "4000",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x4000_scale6_7b56e80f.mlmodelc"
+        }
+    ],
+    "scale4": [
+        {
+            "width": "128",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x128_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "96",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x96_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "72",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x72_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "54",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x54_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "300",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x300_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "227",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x227_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "170",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x170_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "256",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x256_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "64",
+            "height": "128",
+            "model": "defringe_fixed_lr_128x64_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "360",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x360_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "270",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x270_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "202",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x202_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "153",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x153_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "846",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x846_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "640",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x640_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "480",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x480_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "720",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x720_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "180",
+            "height": "360",
+            "model": "defringe_fixed_lr_360x180_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "720",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x720_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "540",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x540_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "405",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x405_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "306",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x306_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1692",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x1692_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1280",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x1280_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "960",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x960_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1440",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x1440_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "360",
+            "height": "720",
+            "model": "defringe_fixed_lr_720x360_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1080",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x1080_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "810",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x810_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "607",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x607_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "459",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x459_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2538",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x2538_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1920",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x1920_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1440",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x1440_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2160",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x2160_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "540",
+            "height": "1080",
+            "model": "defringe_fixed_lr_1080x540_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1440",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x1440_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1080",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x1080_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "810",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x810_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "612",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x612_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "3384",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x3384_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2560",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x2560_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1920",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x1920_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2880",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x2880_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "720",
+            "height": "1440",
+            "model": "defringe_fixed_lr_1440x720_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2160",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x2160_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1620",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x1620_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1215",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x1215_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "919",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x919_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "5076",
+            "height": "2160",
+            "model": "defringe_fixed_hr_2160x5076_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3840",
+            "height": "2160",
+            "model": "defringe_fixed_hr_2160x3840_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2880",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x2880_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "4320",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x4320_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1080",
+            "height": "2160",
+            "model": "defringe_fixed_lr_2160x1080_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "2880",
+            "height": "2880",
+            "model": "defringe_fixed_hr_2880x2880_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2160",
+            "height": "2880",
+            "model": "defringe_fixed_lr_2880x2160_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1620",
+            "height": "2880",
+            "model": "defringe_fixed_lr_2880x1620_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1225",
+            "height": "2880",
+            "model": "defringe_fixed_lr_2880x1225_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "6768",
+            "height": "2880",
+            "model": "defringe_fixed_hr_2880x6768_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "5120",
+            "height": "2880",
+            "model": "defringe_fixed_hr_2880x5120_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3840",
+            "height": "2880",
+            "model": "defringe_fixed_hr_2880x3840_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "5760",
+            "height": "2880",
+            "model": "defringe_fixed_hr_2880x5760_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "1440",
+            "height": "2880",
+            "model": "defringe_fixed_lr_2880x1440_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "3000",
+            "height": "3000",
+            "model": "defringe_fixed_hr_3000x3000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2250",
+            "height": "3000",
+            "model": "defringe_fixed_lr_3000x2250_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1687",
+            "height": "3000",
+            "model": "defringe_fixed_lr_3000x1687_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "1276",
+            "height": "3000",
+            "model": "defringe_fixed_lr_3000x1276_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "7050",
+            "height": "3000",
+            "model": "defringe_fixed_hr_3000x7050_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "5333",
+            "height": "3000",
+            "model": "defringe_fixed_hr_3000x5333_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "4000",
+            "height": "3000",
+            "model": "defringe_fixed_hr_3000x4000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "6000",
+            "height": "3000",
+            "model": "defringe_fixed_hr_3000x6000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "1500",
+            "height": "3000",
+            "model": "defringe_fixed_lr_3000x1500_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "3840",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x3840_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2880",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x2880_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2160",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x2160_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "1634",
+            "height": "3840",
+            "model": "defringe_fixed_lr_3840x1634_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "9024",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x9024_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "6826",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x6826_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "5120",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x5120_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "7680",
+            "height": "3840",
+            "model": "defringe_fixed_hr_3840x7680_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "1920",
+            "height": "3840",
+            "model": "defringe_fixed_lr_3840x1920_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "4000",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x4000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3000",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x3000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2250",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x2250_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "1702",
+            "height": "4000",
+            "model": "defringe_fixed_lr_4000x1702_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "9400",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x9400_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "7111",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x7111_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "5333",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x5333_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "8000",
+            "height": "4000",
+            "model": "defringe_fixed_hr_4000x8000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2000",
+            "height": "4000",
+            "model": "defringe_fixed_lr_4000x2000_scale4_e28c1212.mlmodelc"
+        },
+        {
+            "width": "6000",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x6000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "4500",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x4500_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3375",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x3375_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "2553",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x2553_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "14100",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x14100_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "10666",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x10666_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "8000",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x8000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "12000",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x12000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3000",
+            "height": "6000",
+            "model": "defringe_fixed_hr_6000x3000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "8000",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x8000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "6000",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x6000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "4500",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x4500_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "3404",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x3404_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "18800",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x18800_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "14222",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x14222_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "10666",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x10666_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "16000",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x16000_scale4_7b56e80f.mlmodelc"
+        },
+        {
+            "width": "4000",
+            "height": "8000",
+            "model": "defringe_fixed_hr_8000x4000_scale4_7b56e80f.mlmodelc"
+        }
+    ]
+}

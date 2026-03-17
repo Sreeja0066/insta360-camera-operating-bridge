@@ -45,5 +45,31 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UISupportedExternalAccessoryProtocols</key>
+	<array>
+		<string>com.insta360.camera</string>
+		<string>com.insta360.onecontrol</string>
+		<string>com.insta360.onexcontrol</string>
+		<string>com.insta360.nanoscontrol</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>external-accessory</string>
+		<string>fetch</string>
+		<string>processing</string>
+		<string>remote-notification</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app needs access to the local network to connect to the Insta360 camera.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location access is required to scan for the camera's Wi-Fi network.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Bluetooth is used to discover and wake up the Insta360 camera.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Bluetooth is used to discover and wake up the Insta360 camera.</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.example.insta360bridge.upload</string>
+	</array>
 </dict>
 </plist>

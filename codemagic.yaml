@@ -1,0 +1,31 @@
+workflows:
+  ios-workflow:
+    name: iOS Build & Sign
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+      xcode: latest
+      groups:
+        - apple_auth # Setup this group in Codemagic UI with your API Key
+    scripts:
+      - name: Install CocoaPods
+        script: |
+          cd insta360-bridge-flutter/ios
+          pod install
+      - name: Build Flutter iOS
+        script: |
+          cd insta360-bridge-flutter
+          flutter build ios --release --no-codesign
+      - name: Code Signing & IPA Generation
+        script: |
+          # Use your unique bundle identifier here
+          # Codemagic will handle signing if 'apple_auth' is configured
+          xcode-project build-ipa \
+            --workspace insta360-bridge-flutter/ios/Runner.xcworkspace \
+            --scheme Runner
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

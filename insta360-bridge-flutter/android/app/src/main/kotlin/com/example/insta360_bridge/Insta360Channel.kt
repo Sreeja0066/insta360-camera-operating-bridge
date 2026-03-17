@@ -22,16 +22,39 @@ class Insta360Channel(
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val cameraControl = CameraControl()
     val wifiHelper = WifiHelper(activity)
-    private val videoExporter = VideoExporter(activity)
     private var demoMode = false
+    
+    var bgService: Insta360BackgroundService? = null
+
+    fun setService(service: Insta360BackgroundService) {
+        this.bgService = service
+        Log.d(TAG, "Background Service bound to Flutter Channel!")
+    }
+
+    init {
+        // Connect WifiHelper results to Flutter events
+        wifiHelper.onScanResults = { results ->
+            val networkList = results.map { 
+                mapOf("ssid" to it.ssid, "level" to it.level)
+            }
+            invokeDartEvent("onWifiList", networkList)
+        }
+
+        wifiHelper.onConnectionStatus = { status ->
+            Log.d(TAG, "Wi-Fi connection status: $status")
+            invokeDartEvent("onWifiConnected", mapOf("status" to status))
+            if (status == "CONNECTED") {
+                onWifiConnected()
+            }
+        }
+    }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "startRecording" -> startRecording(result)
             "stopRecording" -> stopRecording(result)
-            "getStatus" -> result.success(cameraControl.getStatus())
+            "getStatus" -> result.success(bgService?.cameraControl?.getStatus() ?: "DISCONNECTED")
             "connectCamera" -> connectCamera(result)
             "scanWifi" -> scanWifi(result)
             "connectWifi" -> {
@@ -52,6 +75,14 @@ class Insta360Channel(
                 val recordingId = call.argument<String>("recordingId") ?: ""
                 exportRecording(recordingId, result)
             }
+            "signInToDrive" -> signInToDrive(result)
+            "getDriveSignInStatus" -> result.success(getDriveSignInStatus())
+            "uploadToDrive" -> {
+                val filePath = call.argument<String>("filePath") ?: ""
+                uploadToDrive(filePath, result)
+            }
+            "uploadPendingFiles" -> uploadPendingFiles(result)
+            "getPendingUploadCount" -> result.success(bgService?.driveUploader?.getPendingFiles()?.size ?: 0)
             else -> result.notImplemented()
         }
     }
@@ -64,8 +95,12 @@ class Insta360Channel(
 
     private fun startRecording(result: Result) {
         Log.d(TAG, "Flutter called startRecording")
+        if (bgService == null) {
+            result.error("NO_SERVICE", "Background service not bound yet", null)
+            return
+        }
         mainHandler.post {
-            cameraControl.startRecording(object : CameraControl.RecordingCallback {
+            bgService?.cameraControl?.startRecording(object : CameraControl.RecordingCallback {
                 override fun onSuccess() {
                     Log.d(TAG, "Recording started")
                     invokeDartEvent("onRecordingStarted")
@@ -83,8 +118,12 @@ class Insta360Channel(
 
     private fun stopRecording(result: Result) {
         Log.d(TAG, "Flutter called stopRecording")
+        if (bgService == null) {
+            result.error("NO_SERVICE", "Background service not bound yet", null)
+            return
+        }
         mainHandler.post {
-            cameraControl.stopRecording(object : CameraControl.RecordingCallback {
+            bgService?.cameraControl?.stopRecording(object : CameraControl.RecordingCallback {
                 override fun onSuccess() {
                     Log.d(TAG, "Recording stopped")
                     invokeDartEvent("onRecordingStopped")
@@ -103,7 +142,7 @@ class Insta360Channel(
     private fun connectCamera(result: Result) {
         Log.d(TAG, "Flutter called connectCamera")
         mainHandler.post {
-            cameraControl.connect()
+            bgService?.cameraControl?.connect()
             result.success(null)
         }
     }
@@ -111,13 +150,19 @@ class Insta360Channel(
     private fun scanWifi(result: Result) {
         Log.d(TAG, "Flutter called scanWifi")
         mainHandler.post {
-            wifiHelper.startScan() // Trigger a fresh scan in background
-            val networks = wifiHelper.getCachedScanResults() // Get current list
-            val networkList = networks.map { 
+            // 1. Immediately return cached results if any
+            val cached = wifiHelper.getCachedScanResults()
+            val cachedList = cached.map { 
                 mapOf("ssid" to it.ssid, "level" to it.level)
             }
-            invokeDartEvent("onWifiList", networkList)
-            result.success(networkList)
+            if (cachedList.isNotEmpty()) {
+                invokeDartEvent("onWifiList", cachedList)
+            }
+
+            // 2. Trigger a fresh scan in background
+            wifiHelper.startScan() 
+            
+            result.success(null) // Return null, results come via onWifiList event
         }
     }
 
@@ -126,6 +171,14 @@ class Insta360Channel(
         mainHandler.post {
             wifiHelper.connectToNetwork(ssid, password)
             result.success(null)
+        }
+    }
+
+    // Called from init when wifiHelper.onConnectionStatus fires
+    private fun onWifiConnected() {
+        Log.d(TAG, "Wi-Fi connected! Now auto-connecting camera SDK...")
+        mainHandler.post {
+            bgService?.cameraControl?.connect()
         }
     }
 
@@ -165,7 +218,11 @@ class Insta360Channel(
     }
 
     private fun exportRecording(recordingId: String, result: Result) {
-        val filePaths = cameraControl.lastCapturedFilePaths
+        if (bgService == null) {
+            result.error("NO_SERVICE", "Background service not bound yet", null)
+            return
+        }
+        val filePaths = bgService?.cameraControl?.lastCapturedFilePaths
         if (filePaths == null || filePaths.isEmpty()) {
             val safeMsg = "No recording files found. Make sure to record first."
             invokeDartEvent("onExportFailed", mapOf("error" to safeMsg, "resolution" to "all"))
@@ -176,7 +233,7 @@ class Insta360Channel(
         mainHandler.post {
             // Fix the "Array<out String>" variance issue by creating a typed copy
             val pathsArray = filePaths.map { it }.toTypedArray()
-            videoExporter.exportBothResolutions(
+            bgService?.videoExporter?.exportBothResolutions(
                 pathsArray,
                 recordingId,
                 object : VideoExporter.ExportCallback {
@@ -201,5 +258,76 @@ class Insta360Channel(
                 }
             )
         }
+    }
+
+    // ===== GOOGLE DRIVE =====
+
+    private fun signInToDrive(result: Result) {
+        Log.d(TAG, "Flutter called signInToDrive")
+        if (activity is MainActivity) {
+            (activity as MainActivity).signInToDrive()
+            result.success(null)
+        } else {
+            result.error("NO_ACTIVITY", "MainActivity required", null)
+        }
+    }
+
+    private fun getDriveSignInStatus(): String {
+        return if (activity is MainActivity) {
+            (activity as MainActivity).getDriveSignInStatus() ?: ""
+        } else ""
+    }
+
+    fun onDriveSignInResult(email: String?, error: String?) {
+        if (email != null) {
+            invokeDartEvent("onDriveSignInSuccess", mapOf("email" to email))
+        } else {
+            invokeDartEvent("onDriveSignInFailed", mapOf("error" to (error ?: "Unknown error")))
+        }
+    }
+
+    private fun uploadToDrive(filePath: String, result: Result) {
+        Log.d(TAG, "Flutter called uploadToDrive: $filePath")
+        val file = java.io.File(filePath)
+        if (!file.exists()) {
+            invokeDartEvent("onDriveUploadFailed", mapOf("error" to "File does not exist: $filePath"))
+            result.error("NOT_FOUND", "File not found", null)
+            return
+        }
+
+        bgService?.driveUploader?.uploadFile(file, object : DriveUploader.UploadCallback {
+            override fun onProgress(progress: Int) {
+                invokeDartEvent("onDriveUploadProgress", mapOf("progress" to progress))
+            }
+            override fun onSuccess(fileId: String) {
+                invokeDartEvent("onDriveUploadSuccess", mapOf("fileId" to fileId))
+            }
+            override fun onError(error: String) {
+                invokeDartEvent("onDriveUploadFailed", mapOf("error" to error))
+            }
+            override fun onQueued(filePath: String) {
+                invokeDartEvent("onDriveUploadQueued", mapOf("filePath" to filePath))
+            }
+        })
+        result.success(null)
+    }
+
+    private fun uploadPendingFiles(result: Result) {
+        Log.d(TAG, "Flutter called uploadPendingFiles")
+        bgService?.driveUploader?.uploadPendingFiles(object : DriveUploader.UploadCallback {
+            override fun onProgress(progress: Int) {
+                invokeDartEvent("onDriveUploadProgress", mapOf("progress" to progress))
+            }
+            override fun onSuccess(fileId: String) {
+                invokeDartEvent("onDriveUploadSuccess", mapOf("fileId" to fileId))
+            }
+            override fun onError(error: String) {
+                invokeDartEvent("onDriveUploadFailed", mapOf("error" to error))
+            }
+            override fun onQueued(filePath: String) {
+                invokeDartEvent("onDriveUploadQueued", mapOf("filePath" to filePath))
+            }
+        })
+        result.success(null)
     }
 }

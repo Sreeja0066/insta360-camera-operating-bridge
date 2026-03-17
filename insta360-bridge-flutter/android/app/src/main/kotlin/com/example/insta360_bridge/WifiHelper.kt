@@ -26,6 +26,9 @@ class WifiHelper(private val context: Context) {
     // Callback for scan results
     var onScanResults: ((List<ScanResultSimple>) -> Unit)? = null
     
+    // Callback for connection status
+    var onConnectionStatus: ((String) -> Unit)? = null
+    
     // Simple data class for JS
     data class ScanResultSimple(val ssid: String, val level: Int)
 
@@ -60,30 +63,35 @@ class WifiHelper(private val context: Context) {
 
     fun startScan() {
         Log.d("WifiHelper", "Starting Wi-Fi Scan...")
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+        val intentFilter = IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
         
-        if (Build.VERSION.SDK_INT >= 34) { // Android 14+
-            context.registerReceiver(scanReceiver, intentFilter, Context.RECEIVER_EXPORTED)
-        } else {
-            context.registerReceiver(scanReceiver, intentFilter)
+        try {
+            if (Build.VERSION.SDK_INT >= 34) {
+                context.registerReceiver(scanReceiver, intentFilter, Context.RECEIVER_EXPORTED)
+            } else {
+                context.registerReceiver(scanReceiver, intentFilter)
+            }
+        } catch (e: Exception) {
+            Log.e("WifiHelper", "Receiver registration error: ${e.message}")
         }
         
         @Suppress("DEPRECATION")
         val success = wifiManager.startScan()
         if (!success) {
             Log.e("WifiHelper", "Scan start failed (throttled?)")
-            // Try to send old results if available
-            val results = wifiManager.scanResults.map { ScanResultSimple(it.SSID, it.level) }
-            onScanResults?.invoke(results)
+            onScanResults?.invoke(getCachedScanResults())
         }
         
-        // Unregister after 10 seconds to avoid leaks if no result
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                context.unregisterReceiver(scanReceiver)
-            } catch (e: Exception) {}
-        }, 10000)
+        // Auto-stop after 10s to be safe
+        Handler(Looper.getMainLooper()).postDelayed({ stopScan() }, 10000)
+    }
+
+    fun stopScan() {
+        try {
+            context.unregisterReceiver(scanReceiver)
+        } catch (e: Exception) {
+            // Unregistered
+        }
     }
 
     fun connectToNetwork(ssid: String, password: String) {
@@ -104,10 +112,12 @@ class WifiHelper(private val context: Context) {
                 override fun onAvailable(network: Network) {
                     Log.d("WifiHelper", "Network available: $ssid")
                     connectivityManager.bindProcessToNetwork(network)
+                    onConnectionStatus?.invoke("CONNECTED")
                 }
 
                 override fun onUnavailable() {
                     Log.d("WifiHelper", "Network unavailable")
+                    onConnectionStatus?.invoke("FAILED")
                 }
             })
         } else {

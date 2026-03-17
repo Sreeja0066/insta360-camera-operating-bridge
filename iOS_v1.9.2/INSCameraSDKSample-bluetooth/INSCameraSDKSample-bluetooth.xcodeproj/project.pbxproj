@@ -1,0 +1,607 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 70;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C7F120C420E62F03001500F3 /* BluetoothViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F120C320E62F03001500F3 /* BluetoothViewController.swift */; };
+		CF7C877027326B120061D673 /* LiveConfigurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7C876627326B120061D673 /* LiveConfigurationViewController.swift */; };
+		CF7C877127326B120061D673 /* RecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7C876727326B120061D673 /* RecordViewController.swift */; };
+		CF7C877227326B120061D673 /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7C876827326B120061D673 /* PlayerViewController.swift */; };
+		CF7C877327326B120061D673 /* MediasViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7C876927326B120061D673 /* MediasViewController.swift */; };
+		CF7C877427326B120061D673 /* RootViewController+Sections.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7C876A27326B120061D673 /* RootViewController+Sections.swift */; };
+		CF7C877527326B120061D673 /* Section+AVConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7C876B27326B120061D673 /* Section+AVConfig.swift */; };
+		CF7C877627326B120061D673 /* IMG_20181029_182547_00_295.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CF7C876D27326B120061D673 /* IMG_20181029_182547_00_295.jpg */; };
+		CF7C877727326B120061D673 /* IMG_20181029_182547_00_297.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CF7C876E27326B120061D673 /* IMG_20181029_182547_00_297.jpg */; };
+		CF7C877827326B120061D673 /* IMG_20181029_182547_00_296.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CF7C876F27326B120061D673 /* IMG_20181029_182547_00_296.jpg */; };
+		E07C08002D7EC44D00A55A54 /* common_camera_setting_proto.json in Resources */ = {isa = PBXBuildFile; fileRef = E07C07FE2D7EC44D00A55A54 /* common_camera_setting_proto.json */; };
+		E0B90A462D79575C0007DB32 /* SourceListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B90A452D79575C0007DB32 /* SourceListController.swift */; };
+		E0BDF1342D82C42400586509 /* ExportVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BDF1332D82C42400586509 /* ExportVideoViewController.swift */; };
+		E0C3B5792D803DCB009325AD /* CameraSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C3B5782D803DCB009325AD /* CameraSettingViewController.swift */; };
+		EB3BCC362DAF96EA004FD4F0 /* x3.json in Resources */ = {isa = PBXBuildFile; fileRef = EB3BCC352DAF96EA004FD4F0 /* x3.json */; };
+		EB4D80482DA8FD4E00F128EC /* PhotographyOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4D80472DA8FD4E00F128EC /* PhotographyOptionsViewController.swift */; };
+		EB53286D2E702717007C056C /* CameraConfigByJsonController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB53286C2E702717007C056C /* CameraConfigByJsonController.swift */; };
+		EB57B4BD2E6AE32700BC1CE9 /* x4.json in Resources */ = {isa = PBXBuildFile; fileRef = EB57B4BB2E6AE32700BC1CE9 /* x4.json */; };
+		EB57B4BE2E6AE32700BC1CE9 /* x5.json in Resources */ = {isa = PBXBuildFile; fileRef = EB57B4BC2E6AE32700BC1CE9 /* x5.json */; };
+		EB7E383B2DADF69600F326B5 /* DemoTestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7E383A2DADF69400F326B5 /* DemoTestViewController.swift */; };
+		EB99FFB02DDD6DE9002F7A5E /* INSCameraServiceSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EB99FFAA2DDD6DE9002F7A5E /* INSCameraServiceSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EB99FFB12DDD6DE9002F7A5E /* INSCoreMedia.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EB99FFAB2DDD6DE9002F7A5E /* INSCoreMedia.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EB99FFB22DDD6DE9002F7A5E /* SnapKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EB99FFAC2DDD6DE9002F7A5E /* SnapKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EB99FFB32DDD6DE9002F7A5E /* INSCameraSDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EB99FFAD2DDD6DE9002F7A5E /* INSCameraSDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EB99FFB42DDD6DE9002F7A5E /* SSZipArchive.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EB99FFAE2DDD6DE9002F7A5E /* SSZipArchive.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EB99FFB52DDD6DE9002F7A5E /* Eureka.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EB99FFAF2DDD6DE9002F7A5E /* Eureka.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EBC81A7C2E991471004866D3 /* INSCameraServiceSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB99FFAA2DDD6DE9002F7A5E /* INSCameraServiceSDK.xcframework */; };
+		EBE219AC2DA8FC7B000786AD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EBE219A42DA8FC7B000786AD /* Main.storyboard */; };
+		EBE219AD2DA8FC7B000786AD /* AllCommandsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE2199C2DA8FC7B000786AD /* AllCommandsViewController.swift */; };
+		EBE219AE2DA8FC7B000786AD /* NSData+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE219A62DA8FC7B000786AD /* NSData+Hex.swift */; };
+		EBE219AF2DA8FC7B000786AD /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE219A82DA8FC7B000786AD /* RootViewController.swift */; };
+		EBE219B02DA8FC7B000786AD /* FlatEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE219A12DA8FC7B000786AD /* FlatEditorViewController.swift */; };
+		EBE219B12DA8FC7B000786AD /* WifiStationModeOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE219AA2DA8FC7B000786AD /* WifiStationModeOptionsViewController.swift */; };
+		EBE219B32DA8FC7B000786AD /* CameraFrameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE2199F2DA8FC7B000786AD /* CameraFrameViewController.swift */; };
+		EBE219B42DA8FC7B000786AD /* UIViewController+AlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE219A92DA8FC7B000786AD /* UIViewController+AlertController.swift */; };
+		EBE219B52DA8FC7B000786AD /* GCDTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE219A22DA8FC7B000786AD /* GCDTimer.swift */; };
+		EBE219B62DA8FC7B000786AD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE2199D2DA8FC7B000786AD /* AppDelegate.swift */; };
+		EBE219B72DA8FC7B000786AD /* GpsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE219A32DA8FC7B000786AD /* GpsViewController.swift */; };
+		EBE219B82DA8FC7B000786AD /* NavViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE219A52DA8FC7B000786AD /* NavViewController.swift */; };
+		EBE219B92DA8FC7B000786AD /* CommonOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE219A02DA8FC7B000786AD /* CommonOptionsViewController.swift */; };
+		EBE219BA2DA8FC7B000786AD /* AVOutputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE2199E2DA8FC7B000786AD /* AVOutputViewController.swift */; };
+		EBE2D41E2DDB038200B08425 /* x2.json in Resources */ = {isa = PBXBuildFile; fileRef = EBE2D41D2DDB038200B08425 /* x2.json */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4525C9B6273CFA3A00F235D8 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				EB99FFB02DDD6DE9002F7A5E /* INSCameraServiceSDK.xcframework in Embed Frameworks */,
+				EB99FFB12DDD6DE9002F7A5E /* INSCoreMedia.xcframework in Embed Frameworks */,
+				EB99FFB22DDD6DE9002F7A5E /* SnapKit.xcframework in Embed Frameworks */,
+				EB99FFB32DDD6DE9002F7A5E /* INSCameraSDK.xcframework in Embed Frameworks */,
+				EB99FFB42DDD6DE9002F7A5E /* SSZipArchive.xcframework in Embed Frameworks */,
+				EB99FFB52DDD6DE9002F7A5E /* Eureka.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		C7F120AA20E62CCD001500F3 /* INSCameraSDKSample-bluetooth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "INSCameraSDKSample-bluetooth.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7F120C320E62F03001500F3 /* BluetoothViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BluetoothViewController.swift; sourceTree = "<group>"; };
+		CF7C876327326AEF0061D673 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CF7C876627326B120061D673 /* LiveConfigurationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiveConfigurationViewController.swift; sourceTree = "<group>"; };
+		CF7C876727326B120061D673 /* RecordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordViewController.swift; sourceTree = "<group>"; };
+		CF7C876827326B120061D673 /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
+		CF7C876927326B120061D673 /* MediasViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediasViewController.swift; sourceTree = "<group>"; };
+		CF7C876A27326B120061D673 /* RootViewController+Sections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RootViewController+Sections.swift"; sourceTree = "<group>"; };
+		CF7C876B27326B120061D673 /* Section+AVConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Section+AVConfig.swift"; sourceTree = "<group>"; };
+		CF7C876D27326B120061D673 /* IMG_20181029_182547_00_295.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = IMG_20181029_182547_00_295.jpg; sourceTree = "<group>"; };
+		CF7C876E27326B120061D673 /* IMG_20181029_182547_00_297.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = IMG_20181029_182547_00_297.jpg; sourceTree = "<group>"; };
+		CF7C876F27326B120061D673 /* IMG_20181029_182547_00_296.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = IMG_20181029_182547_00_296.jpg; sourceTree = "<group>"; };
+		E07C07FE2D7EC44D00A55A54 /* common_camera_setting_proto.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = common_camera_setting_proto.json; sourceTree = "<group>"; };
+		E0B90A452D79575C0007DB32 /* SourceListController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SourceListController.swift; sourceTree = "<group>"; };
+		E0BDF1332D82C42400586509 /* ExportVideoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExportVideoViewController.swift; sourceTree = "<group>"; };
+		E0C3B5782D803DCB009325AD /* CameraSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraSettingViewController.swift; sourceTree = "<group>"; };
+		EB3BCC352DAF96EA004FD4F0 /* x3.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = x3.json; sourceTree = "<group>"; };
+		EB4D80472DA8FD4E00F128EC /* PhotographyOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotographyOptionsViewController.swift; sourceTree = "<group>"; };
+		EB53286C2E702717007C056C /* CameraConfigByJsonController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraConfigByJsonController.swift; sourceTree = "<group>"; };
+		EB57B4BB2E6AE32700BC1CE9 /* x4.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = x4.json; sourceTree = "<group>"; };
+		EB57B4BC2E6AE32700BC1CE9 /* x5.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = x5.json; sourceTree = "<group>"; };
+		EB7E383A2DADF69400F326B5 /* DemoTestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTestViewController.swift; sourceTree = "<group>"; };
+		EB99FFAA2DDD6DE9002F7A5E /* INSCameraServiceSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = INSCameraServiceSDK.xcframework; path = Frameworks/INSCameraServiceSDK.xcframework; sourceTree = "<group>"; };
+		EB99FFAB2DDD6DE9002F7A5E /* INSCoreMedia.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = INSCoreMedia.xcframework; path = Frameworks/INSCoreMedia.xcframework; sourceTree = "<group>"; };
+		EB99FFAC2DDD6DE9002F7A5E /* SnapKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SnapKit.xcframework; path = Frameworks/SnapKit.xcframework; sourceTree = "<group>"; };
+		EB99FFAD2DDD6DE9002F7A5E /* INSCameraSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = INSCameraSDK.xcframework; path = Frameworks/INSCameraSDK.xcframework; sourceTree = "<group>"; };
+		EB99FFAE2DDD6DE9002F7A5E /* SSZipArchive.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SSZipArchive.xcframework; path = Frameworks/SSZipArchive.xcframework; sourceTree = "<group>"; };
+		EB99FFAF2DDD6DE9002F7A5E /* Eureka.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Eureka.xcframework; path = Frameworks/Eureka.xcframework; sourceTree = "<group>"; };
+		EBE2199C2DA8FC7B000786AD /* AllCommandsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllCommandsViewController.swift; sourceTree = "<group>"; };
+		EBE2199D2DA8FC7B000786AD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		EBE2199E2DA8FC7B000786AD /* AVOutputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVOutputViewController.swift; sourceTree = "<group>"; };
+		EBE2199F2DA8FC7B000786AD /* CameraFrameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFrameViewController.swift; sourceTree = "<group>"; };
+		EBE219A02DA8FC7B000786AD /* CommonOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonOptionsViewController.swift; sourceTree = "<group>"; };
+		EBE219A12DA8FC7B000786AD /* FlatEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlatEditorViewController.swift; sourceTree = "<group>"; };
+		EBE219A22DA8FC7B000786AD /* GCDTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDTimer.swift; sourceTree = "<group>"; };
+		EBE219A32DA8FC7B000786AD /* GpsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GpsViewController.swift; sourceTree = "<group>"; };
+		EBE219A42DA8FC7B000786AD /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		EBE219A52DA8FC7B000786AD /* NavViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavViewController.swift; sourceTree = "<group>"; };
+		EBE219A62DA8FC7B000786AD /* NSData+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSData+Hex.swift"; sourceTree = "<group>"; };
+		EBE219A82DA8FC7B000786AD /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
+		EBE219A92DA8FC7B000786AD /* UIViewController+AlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+AlertController.swift"; sourceTree = "<group>"; };
+		EBE219AA2DA8FC7B000786AD /* WifiStationModeOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiStationModeOptionsViewController.swift; sourceTree = "<group>"; };
+		EBE2D41D2DDB038200B08425 /* x2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = x2.json; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		EB7E4CCA2DAE5BC300F326B5 /* models */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = models; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C7F120A720E62CCD001500F3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EBC81A7C2E991471004866D3 /* INSCameraServiceSDK.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C7F120A120E62CCD001500F3 = {
+			isa = PBXGroup;
+			children = (
+				EB99FFAF2DDD6DE9002F7A5E /* Eureka.xcframework */,
+				EB99FFAD2DDD6DE9002F7A5E /* INSCameraSDK.xcframework */,
+				EB99FFAA2DDD6DE9002F7A5E /* INSCameraServiceSDK.xcframework */,
+				EB99FFAB2DDD6DE9002F7A5E /* INSCoreMedia.xcframework */,
+				EB99FFAC2DDD6DE9002F7A5E /* SnapKit.xcframework */,
+				EB99FFAE2DDD6DE9002F7A5E /* SSZipArchive.xcframework */,
+				C7F120AC20E62CCD001500F3 /* INSCameraSDKSample-bluetooth */,
+				C7F120AB20E62CCD001500F3 /* Products */,
+				CFC917A227323EBA00C1E3D5 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C7F120AB20E62CCD001500F3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C7F120AA20E62CCD001500F3 /* INSCameraSDKSample-bluetooth.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C7F120AC20E62CCD001500F3 /* INSCameraSDKSample-bluetooth */ = {
+			isa = PBXGroup;
+			children = (
+				EB7E4CCA2DAE5BC300F326B5 /* models */,
+				EBE219AB2DA8FC7B000786AD /* common */,
+				E07C07FF2D7EC44D00A55A54 /* json */,
+				CF7C876C27326B120061D673 /* Images */,
+				CF7C876527326B120061D673 /* src */,
+				CF7C876327326AEF0061D673 /* Info.plist */,
+			);
+			path = "INSCameraSDKSample-bluetooth";
+			sourceTree = "<group>";
+		};
+		CF7C876527326B120061D673 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				EB4D80472DA8FD4E00F128EC /* PhotographyOptionsViewController.swift */,
+				C7F120C320E62F03001500F3 /* BluetoothViewController.swift */,
+				EB53286C2E702717007C056C /* CameraConfigByJsonController.swift */,
+				EB7E383A2DADF69400F326B5 /* DemoTestViewController.swift */,
+				E0BDF1332D82C42400586509 /* ExportVideoViewController.swift */,
+				E0B90A452D79575C0007DB32 /* SourceListController.swift */,
+				CF7C876627326B120061D673 /* LiveConfigurationViewController.swift */,
+				CF7C876727326B120061D673 /* RecordViewController.swift */,
+				CF7C876827326B120061D673 /* PlayerViewController.swift */,
+				CF7C876927326B120061D673 /* MediasViewController.swift */,
+				CF7C876A27326B120061D673 /* RootViewController+Sections.swift */,
+				CF7C876B27326B120061D673 /* Section+AVConfig.swift */,
+				E0C3B5782D803DCB009325AD /* CameraSettingViewController.swift */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		CF7C876C27326B120061D673 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				CF7C876D27326B120061D673 /* IMG_20181029_182547_00_295.jpg */,
+				CF7C876E27326B120061D673 /* IMG_20181029_182547_00_297.jpg */,
+				CF7C876F27326B120061D673 /* IMG_20181029_182547_00_296.jpg */,
+			);
+			path = Images;
+			sourceTree = "<group>";
+		};
+		CFC917A227323EBA00C1E3D5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E07C07FF2D7EC44D00A55A54 /* json */ = {
+			isa = PBXGroup;
+			children = (
+				E07C07FE2D7EC44D00A55A54 /* common_camera_setting_proto.json */,
+				EB57B4BC2E6AE32700BC1CE9 /* x5.json */,
+				EB57B4BB2E6AE32700BC1CE9 /* x4.json */,
+				EB3BCC352DAF96EA004FD4F0 /* x3.json */,
+				EBE2D41D2DDB038200B08425 /* x2.json */,
+			);
+			path = json;
+			sourceTree = "<group>";
+		};
+		EBE219AB2DA8FC7B000786AD /* common */ = {
+			isa = PBXGroup;
+			children = (
+				EBE2199C2DA8FC7B000786AD /* AllCommandsViewController.swift */,
+				EBE2199D2DA8FC7B000786AD /* AppDelegate.swift */,
+				EBE2199E2DA8FC7B000786AD /* AVOutputViewController.swift */,
+				EBE2199F2DA8FC7B000786AD /* CameraFrameViewController.swift */,
+				EBE219A02DA8FC7B000786AD /* CommonOptionsViewController.swift */,
+				EBE219A12DA8FC7B000786AD /* FlatEditorViewController.swift */,
+				EBE219A22DA8FC7B000786AD /* GCDTimer.swift */,
+				EBE219A32DA8FC7B000786AD /* GpsViewController.swift */,
+				EBE219A42DA8FC7B000786AD /* Main.storyboard */,
+				EBE219A52DA8FC7B000786AD /* NavViewController.swift */,
+				EBE219A62DA8FC7B000786AD /* NSData+Hex.swift */,
+				EBE219A82DA8FC7B000786AD /* RootViewController.swift */,
+				EBE219A92DA8FC7B000786AD /* UIViewController+AlertController.swift */,
+				EBE219AA2DA8FC7B000786AD /* WifiStationModeOptionsViewController.swift */,
+			);
+			path = common;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C7F120A920E62CCD001500F3 /* INSCameraSDKSample-bluetooth */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C7F120BC20E62CCE001500F3 /* Build configuration list for PBXNativeTarget "INSCameraSDKSample-bluetooth" */;
+			buildPhases = (
+				CFC917A127323BB200C1E3D5 /* ShellScript */,
+				C7F120A620E62CCD001500F3 /* Sources */,
+				C7F120A720E62CCD001500F3 /* Frameworks */,
+				C7F120A820E62CCD001500F3 /* Resources */,
+				4525C9B6273CFA3A00F235D8 /* Embed Frameworks */,
+				4525C9B1273CF28E00F235D8 /* Carthage Scripts */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				EB7E4CCA2DAE5BC300F326B5 /* models */,
+			);
+			name = "INSCameraSDKSample-bluetooth";
+			productName = "INSCameraSDKSample-bluetooth";
+			productReference = C7F120AA20E62CCD001500F3 /* INSCameraSDKSample-bluetooth.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C7F120A220E62CCD001500F3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0930;
+				LastUpgradeCheck = 0930;
+				ORGANIZATIONNAME = insta360;
+				TargetAttributes = {
+					C7F120A920E62CCD001500F3 = {
+						CreatedOnToolsVersion = 9.3.1;
+						LastSwiftMigration = 1630;
+					};
+				};
+			};
+			buildConfigurationList = C7F120A520E62CCD001500F3 /* Build configuration list for PBXProject "INSCameraSDKSample-bluetooth" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C7F120A120E62CCD001500F3;
+			productRefGroup = C7F120AB20E62CCD001500F3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C7F120A920E62CCD001500F3 /* INSCameraSDKSample-bluetooth */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C7F120A820E62CCD001500F3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EBE2D41E2DDB038200B08425 /* x2.json in Resources */,
+				E07C08002D7EC44D00A55A54 /* common_camera_setting_proto.json in Resources */,
+				EB3BCC362DAF96EA004FD4F0 /* x3.json in Resources */,
+				EBE219AC2DA8FC7B000786AD /* Main.storyboard in Resources */,
+				CF7C877627326B120061D673 /* IMG_20181029_182547_00_295.jpg in Resources */,
+				EB57B4BD2E6AE32700BC1CE9 /* x4.json in Resources */,
+				EB57B4BE2E6AE32700BC1CE9 /* x5.json in Resources */,
+				CF7C877827326B120061D673 /* IMG_20181029_182547_00_296.jpg in Resources */,
+				CF7C877727326B120061D673 /* IMG_20181029_182547_00_297.jpg in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4525C9B1273CF28E00F235D8 /* Carthage Scripts */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Frameworks/INSCoreMedia.framework",
+				"$(SRCROOT)/Frameworks/INSCameraSDK.framework",
+				"$(SRCROOT)/Frameworks/Eureka.framework",
+			);
+			name = "Carthage Scripts";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#/usr/local/bin/carthage copy-frameworks\n";
+		};
+		CFC917A127323BB200C1E3D5 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "
+";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C7F120A620E62CCD001500F3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E0B90A462D79575C0007DB32 /* SourceListController.swift in Sources */,
+				CF7C877127326B120061D673 /* RecordViewController.swift in Sources */,
+				CF7C877527326B120061D673 /* Section+AVConfig.swift in Sources */,
+				E0C3B5792D803DCB009325AD /* CameraSettingViewController.swift in Sources */,
+				CF7C877227326B120061D673 /* PlayerViewController.swift in Sources */,
+				C7F120C420E62F03001500F3 /* BluetoothViewController.swift in Sources */,
+				CF7C877327326B120061D673 /* MediasViewController.swift in Sources */,
+				E0BDF1342D82C42400586509 /* ExportVideoViewController.swift in Sources */,
+				EB4D80482DA8FD4E00F128EC /* PhotographyOptionsViewController.swift in Sources */,
+				EB7E383B2DADF69600F326B5 /* DemoTestViewController.swift in Sources */,
+				CF7C877427326B120061D673 /* RootViewController+Sections.swift in Sources */,
+				EBE219AD2DA8FC7B000786AD /* AllCommandsViewController.swift in Sources */,
+				EBE219AE2DA8FC7B000786AD /* NSData+Hex.swift in Sources */,
+				EBE219AF2DA8FC7B000786AD /* RootViewController.swift in Sources */,
+				EBE219B02DA8FC7B000786AD /* FlatEditorViewController.swift in Sources */,
+				EBE219B12DA8FC7B000786AD /* WifiStationModeOptionsViewController.swift in Sources */,
+				EBE219B32DA8FC7B000786AD /* CameraFrameViewController.swift in Sources */,
+				EBE219B42DA8FC7B000786AD /* UIViewController+AlertController.swift in Sources */,
+				EBE219B52DA8FC7B000786AD /* GCDTimer.swift in Sources */,
+				EBE219B62DA8FC7B000786AD /* AppDelegate.swift in Sources */,
+				EB53286D2E702717007C056C /* CameraConfigByJsonController.swift in Sources */,
+				EBE219B72DA8FC7B000786AD /* GpsViewController.swift in Sources */,
+				EBE219B82DA8FC7B000786AD /* NavViewController.swift in Sources */,
+				EBE219B92DA8FC7B000786AD /* CommonOptionsViewController.swift in Sources */,
+				EBE219BA2DA8FC7B000786AD /* AVOutputViewController.swift in Sources */,
+				CF7C877027326B120061D673 /* LiveConfigurationViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		C7F120BA20E62CCE001500F3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C7F120BB20E62CCE001500F3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C7F120BD20E62CCE001500F3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = JD284A47M4;
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+					"\"$(SRCROOT)/Frameworks\"",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					"TO_B_SDK=1",
+				);
+				INFOPLIST_FILE = "INSCameraSDKSample-bluetooth/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.insta360.INSCameraSDKSample-bluetoothInhouse";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.insta360.*";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_WORKSPACE = YES;
+				VALID_ARCHS = "arm64 arm64e";
+			};
+			name = Debug;
+		};
+		C7F120BE20E62CCE001500F3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = JD284A47M4;
+				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=iphoneos*]" = armv7;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+					"\"$(SRCROOT)/Frameworks\"",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = "TO_B_SDK=1";
+				INFOPLIST_FILE = "INSCameraSDKSample-bluetooth/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.insta360.INSCameraSDKSample-bluetoothInhouse";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.insta360.*";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_WORKSPACE = YES;
+				VALID_ARCHS = "arm64 arm64e";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C7F120A520E62CCD001500F3 /* Build configuration list for PBXProject "INSCameraSDKSample-bluetooth" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7F120BA20E62CCE001500F3 /* Debug */,
+				C7F120BB20E62CCE001500F3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C7F120BC20E62CCE001500F3 /* Build configuration list for PBXNativeTarget "INSCameraSDKSample-bluetooth" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7F120BD20E62CCE001500F3 /* Debug */,
+				C7F120BE20E62CCE001500F3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C7F120A220E62CCD001500F3 /* Project object */;
+}
