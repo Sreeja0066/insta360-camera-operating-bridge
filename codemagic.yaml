@@ -6,7 +6,9 @@ workflows:
       flutter: stable
       xcode: latest
       groups:
-        - apple_auth # Setup this group in Codemagic UI with your API Key
+        - apple_auth
+      integrations:
+        - app_store_connect
     scripts:
       - name: Install CocoaPods
         script: |
