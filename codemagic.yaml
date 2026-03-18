@@ -10,6 +10,10 @@ workflows:
     integrations:
       app_store_connect: "[Expo] EAS Submit K3Lun7NC7r"
     scripts:
+      - name: Fetch Large Files (LFS)
+        script: |
+          git lfs install
+          git lfs pull
       - name: Install dependencies
         script: |
           cd insta360-bridge-flutter
