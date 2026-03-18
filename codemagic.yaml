@@ -10,9 +10,11 @@ workflows:
     integrations:
       app_store_connect: "[Expo] EAS Submit K3Lun7NC7r"
     scripts:
-      - name: Install CocoaPods
+      - name: Install dependencies
         script: |
-          cd insta360-bridge-flutter/ios
+          cd insta360-bridge-flutter
+          flutter pub get
+          cd ios
           pod install
       - name: Build Flutter iOS
         script: |
