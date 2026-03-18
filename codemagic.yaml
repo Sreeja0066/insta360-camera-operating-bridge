@@ -14,6 +14,8 @@ workflows:
         script: |
           cd insta360-bridge-flutter
           flutter pub get
+          # This command specifically generates the required Generated.xcconfig file correctly
+          flutter build ios --no-codesign --config-only
           cd ios
           pod install
       - name: Build Flutter iOS
