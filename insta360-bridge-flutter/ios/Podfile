@@ -24,6 +24,7 @@ target 'Runner' do
   # Official Insta360 SDK Pods (Auto-downloads all dependencies!)
   pod 'INSCameraSDK'
   pod 'INSCoreMedia'
+  pod 'INSCameraServiceSDK'
 end
 
 post_install do |installer|
