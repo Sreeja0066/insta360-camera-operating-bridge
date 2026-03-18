@@ -21,8 +21,9 @@ target 'Runner' do
   
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
-  # This links the local pod I just created in the Frameworks folder
-  pod 'INSCameraSDK', :path => 'Frameworks'
+  # Official Insta360 SDK Pods (Auto-downloads all dependencies!)
+  pod 'INSCameraSDK'
+  pod 'INSCoreMedia'
 end
 
 post_install do |installer|
