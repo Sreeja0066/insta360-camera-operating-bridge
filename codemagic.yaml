@@ -2,13 +2,13 @@ workflows:
   ios-workflow:
     name: iOS Build & Sign
     instance_type: mac_mini_m1
-    integrations:
-      - app_store_connect
     environment:
       groups:
         - apple_auth
       flutter: stable
       xcode: latest
+    integrations:
+      - app_store_connect
     scripts:
       - name: Install CocoaPods
         script: |
