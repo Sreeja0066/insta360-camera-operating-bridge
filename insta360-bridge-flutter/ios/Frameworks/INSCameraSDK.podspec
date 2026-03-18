@@ -10,8 +10,8 @@ Pod::Spec.new do |s|
   s.platform         = :ios, '13.0'
   s.swift_version    = '5.0'
 
-  # These direct CocoaPods to the newly copied xcframeworks
-  s.vendored_frameworks = 'INSCameraSDK.xcframework', 'INSCameraServiceSDK.xcframework', 'Eureka.xcframework', 'INSCoreMedia.xcframework', 'SSZipArchive.xcframework', 'SnapKit.xcframework'
+  # Automatically include ALL frameworks in this folder (including Carthage downloads)
+  s.vendored_frameworks = '*.xcframework'
   
   s.frameworks       = 'Foundation', 'UIKit', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'CoreGraphics', 'Photos'
   s.libraries        = 'c++', 'z'
