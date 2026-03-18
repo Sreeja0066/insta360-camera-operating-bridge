@@ -8,7 +8,7 @@ workflows:
       flutter: stable
       xcode: latest
     integrations:
-      app_store_connect: true
+      app_store_connect: "[Expo] EAS Submit K3Lun7NC7r"
     scripts:
       - name: Install CocoaPods
         script: |
