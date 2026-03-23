@@ -5,15 +5,28 @@ workflows:
     environment:
       groups:
         - apple_auth
+      vars:
+        GIT_LFS_SKIP_SMUDGE: "1"
       flutter: stable
       xcode: latest
     integrations:
       app_store_connect: "[Expo] EAS Submit K3Lun7NC7r"
     scripts:
-      - name: Fetch Large Files (LFS)
+      - name: Download SDK Frameworks
         script: |
-          git lfs install
-          git lfs pull
+          # Download frameworks from GitHub Release
+          FRAMEWORKS_URL="https://github.com/Sreeja0066/insta360-camera-operating-bridge/releases/download/sdk-v1.9.2/Frameworks.zip"
+          curl -L -o /tmp/ios-frameworks.zip "$FRAMEWORKS_URL"
+          # Clear existing LFS pointer files and extract real frameworks
+          rm -rf "$CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks"
+          mkdir -p "$CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks"
+          unzip -o /tmp/ios-frameworks.zip -d "$CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks/"
+          
+          # If the zip extracted into a subfolder named 'Frameworks', move them up
+          if [ -d "$CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks/Frameworks" ]; then
+            mv $CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks/Frameworks/* $CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks/
+            rm -rf $CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks/Frameworks
+          fi
       - name: Install dependencies
         script: |
           cd insta360-bridge-flutter
