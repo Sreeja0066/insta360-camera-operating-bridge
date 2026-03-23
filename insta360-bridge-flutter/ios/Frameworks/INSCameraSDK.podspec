@@ -18,4 +18,8 @@ Pod::Spec.new do |s|
   
   # Ensure the module is created for Swift
   s.module_name      = 'INSCameraSDK'
+
+  # Robustly define TO_B_SDK=1 to bypass the missing NvEffectSdkCore Meishe SDK compilation dependency in Insta360 headers
+  s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'TO_B_SDK=1' }
+  s.user_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'TO_B_SDK=1' }
 end
