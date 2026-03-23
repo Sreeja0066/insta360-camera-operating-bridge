@@ -17,9 +17,12 @@ workflows:
           # Download frameworks from GitHub Release
           FRAMEWORKS_URL="https://github.com/Sreeja0066/insta360-camera-operating-bridge/releases/download/sdk-v1.9.2/Frameworks.zip"
           curl -L -o /tmp/ios-frameworks.zip "$FRAMEWORKS_URL"
-          # Clear existing LFS pointer files and extract real frameworks
-          rm -rf "$CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks"
-          mkdir -p "$CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks"
+          
+          # We must NOT delete the whole directory because it contains INSCameraSDK.podspec which is in Git
+          # Only delete the .xcframework folders (which are currently LFS pointers)
+          find "$CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks" -name "*.xcframework" -type d -exec rm -rf {} +
+          
+          # Extract real frameworks into the folder
           unzip -o /tmp/ios-frameworks.zip -d "$CM_BUILD_DIR/insta360-bridge-flutter/ios/Frameworks/"
           
           # If the zip extracted into a subfolder named 'Frameworks', move them up
