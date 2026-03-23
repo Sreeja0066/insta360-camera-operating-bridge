@@ -32,7 +32,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
         switch state {
         case .connected:
             return "CONNECTED"
-        case .connecting:
+        case .found, .synchronized:
             return "CONNECTING"
         default:
             return "DISCONNECTED"
