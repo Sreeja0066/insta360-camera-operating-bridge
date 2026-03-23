@@ -32,6 +32,9 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      # Define TO_B_SDK=1 to bypass the missing NvEffectSdkCore Meishe SDK compilation dependency in Insta360 headers
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'TO_B_SDK=1'
     end
   end
 end
