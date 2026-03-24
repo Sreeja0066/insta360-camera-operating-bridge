@@ -69,7 +69,7 @@
 	<string>Bluetooth is used to discover and wake up the Insta360 camera.</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>com.example.insta360bridge.upload</string>
+		<string>com.noveloffice.insta360bridge.upload</string>
 	</array>
 </dict>
 </plist>

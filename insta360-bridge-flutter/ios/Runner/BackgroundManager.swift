@@ -4,7 +4,7 @@ import UIKit
 class BackgroundManager {
     static let shared = BackgroundManager()
     
-    private let uploadTaskIdentifier = "com.example.insta360bridge.upload"
+    private let uploadTaskIdentifier = "com.noveloffice.insta360bridge.upload"
     
     func registerTasks() {
         if #available(iOS 13.0, *) {

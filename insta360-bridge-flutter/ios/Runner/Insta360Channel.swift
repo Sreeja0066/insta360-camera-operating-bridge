@@ -6,7 +6,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
     private var channel: FlutterMethodChannel?
     
     static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "insta360_bridge", binaryMessenger: registrar.messenger())
+        let channel = FlutterMethodChannel(name: "com.noveloffice.insta360bridge/camera", binaryMessenger: registrar.messenger())
         let instance = Insta360Channel()
         instance.channel = channel
         registrar.addMethodCallDelegate(instance, channel: channel)

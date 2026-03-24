@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 
 class Insta360Service {
-  static const MethodChannel _channel = MethodChannel('com.example.insta360bridge/camera');
+  static const MethodChannel _channel = MethodChannel('com.noveloffice.insta360bridge/camera');
   
   // Singleton
   static final Insta360Service instance = Insta360Service._internal();
