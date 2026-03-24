@@ -9,8 +9,9 @@ workflows:
         GIT_LFS_SKIP_SMUDGE: "1"
       flutter: stable
       xcode: latest
-    integrations:
-      app_store_connect: "[Expo] EAS Submit K3Lun7NC7r"
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.noveloffice.insta360bridge
     scripts:
       - name: Download SDK Frameworks
         script: |
@@ -44,20 +45,24 @@ workflows:
           flutter build ios --release --no-codesign
       - name: Code Signing & IPA Generation
         script: |
-          # Debug: List the profiles Codemagic downloaded
-          echo "Listing profiles in ~/Library/MobileDevice/Provisioning Profiles/:"
-          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || echo "Directory not found"
+          # Debug: Verify profiles were downloaded by ios_signing
+          echo "=== Profiles in MobileDevice ==="
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || echo "Directory empty or not found"
+          echo "=== Profiles in Xcode UserData ==="
+          ls -la ~/Library/Developer/Xcode/UserData/Provisioning\ Profiles/ || echo "Directory empty or not found"
+          echo "=== Certificates in keychain ==="
+          security find-identity -v -p codesigning ~/Library/Keychains/login.keychain-db || true
           
-          # Fetch profiles from Codemagic UI
+          # Apply profiles to project
           xcode-project use-profiles
           
-          # Build signed IPA using standard flutter command
-          cd insta360-bridge-flutter
-          flutter build ipa --release \
-            --export-method app-store \
-            --build-number=$BUILD_NUMBER
+          # Build the IPA
+          xcode-project build-ipa \
+            --workspace insta360-bridge-flutter/ios/Runner.xcworkspace \
+            --scheme Runner
     artifacts:
       - build/ios/ipa/*.ipa
+      - insta360-bridge-flutter/build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
         auth: integration
