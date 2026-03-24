@@ -49,8 +49,7 @@ workflows:
           # Build signed IPA
           xcode-project build-ipa \
             --workspace insta360-bridge-flutter/ios/Runner.xcworkspace \
-            --scheme Runner \
-            --bundle-id com.noveloffice.insta360bridge
+            --scheme Runner
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
