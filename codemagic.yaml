@@ -48,7 +48,8 @@ workflows:
           xcode-project use-profiles
           xcode-project build-ipa \
             --workspace insta360-bridge-flutter/ios/Runner.xcworkspace \
-            --scheme Runner
+            --scheme Runner \
+            --type app-store
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
