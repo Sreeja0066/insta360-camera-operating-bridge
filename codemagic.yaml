@@ -44,13 +44,18 @@ workflows:
           flutter build ios --release --no-codesign
       - name: Code Signing & IPA Generation
         script: |
-          # Debug: List what Codemagic found
-          ls -R ~/Library/MobileDevice/Provisioning\ Profiles || true
-          # Fetch profiles from Codemagic UI and build signed IPA
+          # Debug: List the profiles Codemagic downloaded
+          echo "Listing profiles in ~/Library/MobileDevice/Provisioning Profiles/:"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || echo "Directory not found"
+          
+          # Fetch profiles from Codemagic UI
           xcode-project use-profiles
-          xcode-project build-ipa \
-            --workspace insta360-bridge-flutter/ios/Runner.xcworkspace \
-            --scheme Runner
+          
+          # Build signed IPA using standard flutter command
+          cd insta360-bridge-flutter
+          flutter build ipa --release --no-codesign \
+            --export-method app-store \
+            --build-number=$BUILD_NUMBER
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
