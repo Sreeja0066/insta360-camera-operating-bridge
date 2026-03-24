@@ -44,8 +44,6 @@ workflows:
           flutter build ios --release --no-codesign
       - name: Code Signing & IPA Generation
         script: |
-          # Fetch provisioning profiles and generate export_options.plist
-          xcode-project use-profiles
           # Build signed IPA
           xcode-project build-ipa \
             --workspace insta360-bridge-flutter/ios/Runner.xcworkspace \
