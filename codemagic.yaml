@@ -44,12 +44,13 @@ workflows:
           flutter build ios --release --no-codesign
       - name: Code Signing & IPA Generation
         script: |
+          # Debug: List what Codemagic found
+          ls -R ~/Library/MobileDevice/Provisioning\ Profiles || true
           # Fetch profiles from Codemagic UI and build signed IPA
           xcode-project use-profiles
           xcode-project build-ipa \
             --workspace insta360-bridge-flutter/ios/Runner.xcworkspace \
-            --scheme Runner \
-            --type app-store
+            --scheme Runner
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
