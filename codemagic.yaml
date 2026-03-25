@@ -13,7 +13,7 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.noveloffice.insta360bridge
     integrations:
-      app_store_connect: "[Expo] EAS Submit K3Lun7NC7r"
+      app_store_connect: Insta360Bridge
     scripts:
       - name: Download SDK Frameworks
         script: |
