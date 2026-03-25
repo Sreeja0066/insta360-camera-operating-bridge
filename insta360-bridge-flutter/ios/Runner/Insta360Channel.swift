@@ -176,7 +176,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
         let options = INSCaptureOptions()
         
         // In the B-end SDK, capture methods are on the commandManager
-        INSCameraManager.shared().commandManager.startCapture(options) { (error: Error?) in
+        INSCameraManager.shared().commandManager.startCapture(with: options) { (error: Error?) in
             if let error = error {
                 print("[Insta360Channel] startCapture error: \(error.localizedDescription)")
                 DispatchQueue.main.async {
@@ -201,7 +201,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
         }
         
         let options = INSCaptureOptions()
-        INSCameraManager.shared().commandManager.stopCapture(options) { (error: Error?) in
+        INSCameraManager.shared().commandManager.stopCapture(with: options) { (error: Error?, videoInfo: Any?) in
             if let error = error {
                 print("[Insta360Channel] stopCapture error: \(error.localizedDescription)")
                 DispatchQueue.main.async {
