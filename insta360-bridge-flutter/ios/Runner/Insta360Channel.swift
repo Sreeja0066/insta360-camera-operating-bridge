@@ -32,7 +32,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
             if status == "CONNECTED" {
                 // Once WiFi is connected, trigger the SDK to connect to the camera
                 print("[Insta360Channel] WiFi connected, triggering SDK camera connection")
-                INSCameraManager.shared().connect()
+                INSCameraManager.socket().connect()
             }
         }
     }
@@ -45,7 +45,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
         case "getStatus":
             result(getCameraStatus())
         case "connectCamera":
-            INSCameraManager.shared().connect()
+            INSCameraManager.socket().connect()
             result(nil)
         case "startRecording":
             startRecording(result: result)
@@ -151,7 +151,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
     private func getCameraStatus() -> String {
         if demoMode { return "CONNECTED" }
         
-        let state = INSCameraManager.shared().socket().cameraState
+        let state = INSCameraManager.socket().cameraState
         switch state {
         case .connected:
             return "CONNECTED"
@@ -172,22 +172,16 @@ class Insta360Channel: NSObject, FlutterPlugin {
             return
         }
         
-        // Ensure we are in video mode first
-        INSCameraManager.shared().commandManager.setCaptureMode(.video) { [weak self] error in
+        // Use INSCaptureOptions as required by the B-end SDK
+        let options = INSCaptureOptions()
+        // Default to video if possible, or just start capture with primary settings
+        INSCameraManager.socket().startCapture(with: options) { [weak self] error in
             if let error = error {
-                print("[Insta360Channel] setCaptureMode error: \(error.localizedDescription)")
+                print("[Insta360Channel] startCapture error: \(error.localizedDescription)")
                 self?.invokeDartEvent("onRecordingFailed", arguments: ["reason": error.localizedDescription])
-                return
-            }
-            
-            INSCameraManager.shared().commandManager.startCapture { [weak self] error in
-                if let error = error {
-                    print("[Insta360Channel] startCapture error: \(error.localizedDescription)")
-                    self?.invokeDartEvent("onRecordingFailed", arguments: ["reason": error.localizedDescription])
-                } else {
-                    print("[Insta360Channel] startCapture success")
-                    self?.invokeDartEvent("onRecordingStarted")
-                }
+            } else {
+                print("[Insta360Channel] startCapture success")
+                self?.invokeDartEvent("onRecordingStarted")
             }
         }
         result(nil)
@@ -201,7 +195,8 @@ class Insta360Channel: NSObject, FlutterPlugin {
             return
         }
         
-        INSCameraManager.shared().commandManager.stopCapture { [weak self] error in
+        let options = INSCaptureOptions()
+        INSCameraManager.socket().stopCapture(with: options) { [weak self] error in
             if let error = error {
                 print("[Insta360Channel] stopCapture error: \(error.localizedDescription)")
                 self?.invokeDartEvent("onRecordingStopFailed", arguments: ["reason": error.localizedDescription])
