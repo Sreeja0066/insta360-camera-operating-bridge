@@ -465,6 +465,8 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   List<dynamic> networks = [];
   bool isScanning = false;
+  bool _isIOS = false;
+  bool _showFirstTimeSetup = false;
   List<String> logs = ['[System] Ready to connect...'];
 
   late StreamSubscription _sub;
@@ -472,14 +474,37 @@ class _CameraPageState extends State<CameraPage> {
   @override
   void initState() {
     super.initState();
+    _isIOS = Platform.isIOS;
     _sub = Insta360Service.instance.events.listen((event) {
       if (!mounted) return;
       if (event['event'] == 'onWifiList') {
+        final data = event['data'] as List<dynamic>;
         setState(() {
-          networks = event['data'] as List<dynamic>;
+          networks = data;
           isScanning = false;
+          // On iOS, if no saved cameras, show first-time setup
+          if (_isIOS && data.isEmpty) {
+            _showFirstTimeSetup = true;
+          }
         });
-        _log('Found ${networks.length} networks.');
+        if (_isIOS) {
+          _log(data.isEmpty ? 'No saved cameras. Please set up.' : 'Found ${data.length} saved camera(s).');
+        } else {
+          _log('Found ${data.length} networks.');
+        }
+      } else if (event['event'] == 'onWifiConnected') {
+        final status = event['data']?['status'] ?? '';
+        _log('Connection: $status');
+        if (status == 'CONNECTED') {
+          _log('Camera WiFi connected! ✅');
+          setState(() => _showFirstTimeSetup = false);
+        } else if (status == 'USER_DENIED') {
+          _log('Connection was cancelled by user.');
+        } else if (status == 'INVALID_PASSWORD') {
+          _log('Wrong password. Please try again.');
+        } else if (status.toString().startsWith('FAILED')) {
+          _log('Connection failed: $status');
+        }
       }
     });
   }
@@ -498,21 +523,34 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   void _scan() async {
-    setState(() { isScanning = true; networks = []; });
-    _log('Scanning for cameras...');
+    setState(() { isScanning = true; networks = []; _showFirstTimeSetup = false; });
 
-    var status = await Permission.locationWhenInUse.request();
-    if (status.isDenied) {
-      if (!mounted) return;
-      setState(() => isScanning = false);
-      _log('Location permission denied.');
-      return;
+    if (_isIOS) {
+      _log('Loading saved cameras...');
+      await Insta360Service.instance.scanWifi();
+    } else {
+      _log('Scanning for cameras...');
+      var status = await Permission.locationWhenInUse.request();
+      if (status.isDenied) {
+        if (!mounted) return;
+        setState(() => isScanning = false);
+        _log('Location permission denied.');
+        return;
+      }
+      await Insta360Service.instance.scanWifi();
     }
-    await Insta360Service.instance.scanWifi();
   }
 
-  void _connect(String ssid) {
+  void _connect(String ssid, {bool isSaved = false}) {
     final controller = TextEditingController(text: '88888888');
+    
+    if (isSaved) {
+      // Saved camera on iOS — connect directly without asking password
+      _log('Auto-connecting to $ssid...');
+      Insta360Service.instance.connectWifi(ssid, '');
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -570,6 +608,135 @@ class _CameraPageState extends State<CameraPage> {
     );
   }
 
+  void _openWifiSettings() async {
+    _log('Opening WiFi Settings...');
+    await Insta360Service.instance.openWifiSettings();
+  }
+
+  void _addNewCameraIOS() {
+    // Show dialog explaining how to add a new camera
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Add New Camera', style: TextStyle(fontSize: 16)),
+        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('Steps:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          const Text('1. Open WiFi Settings below', style: TextStyle(fontSize: 13, color: AppColors.textDim)),
+          const Text('2. Connect to your camera\'s WiFi', style: TextStyle(fontSize: 13, color: AppColors.textDim)),
+          const Text('   (e.g., ONE X3 XXXX.OSC)', style: TextStyle(fontSize: 12, color: AppColors.textDim)),
+          const Text('3. Come back to this app', style: TextStyle(fontSize: 13, color: AppColors.textDim)),
+          const Text('4. Enter the camera password', style: TextStyle(fontSize: 13, color: AppColors.textDim)),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _openWifiSettings();
+              },
+              icon: const Icon(Icons.wifi, size: 18),
+              label: const Text('Open WiFi Settings'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ),
+        ]),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              // After returning from settings, prompt for SSID and password
+              _promptSaveCamera();
+            },
+            child: const Text('I\'ve connected — Save Camera', style: TextStyle(color: AppColors.primary)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _promptSaveCamera() async {
+    // Try to get current SSID
+    String? currentSSID;
+    try {
+      currentSSID = await Insta360Service.instance.getCurrentSSID();
+    } catch (_) {}
+
+    final ssidController = TextEditingController(text: currentSSID ?? '');
+    final passwordController = TextEditingController(text: '88888888');
+
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Save Camera', style: TextStyle(fontSize: 16)),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          TextField(
+            controller: ssidController,
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              hintText: 'Camera WiFi Name (SSID)',
+              filled: true,
+              fillColor: Colors.black.withOpacity(0.3),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: passwordController,
+            obscureText: true,
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              hintText: 'Camera WiFi Password',
+              filled: true,
+              fillColor: Colors.black.withOpacity(0.3),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+            ),
+          ),
+        ]),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.textDim)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final ssid = ssidController.text.trim();
+              final password = passwordController.text.trim();
+              if (ssid.isNotEmpty && password.isNotEmpty) {
+                _log('Saving & connecting to $ssid...');
+                await Insta360Service.instance.connectWifi(ssid, password);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Save & Connect'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteSavedCamera(String ssid) async {
+    await Insta360Service.instance.removeSavedCamera(ssid);
+    _log('Removed $ssid');
+    _scan(); // Refresh list
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -612,7 +779,7 @@ class _CameraPageState extends State<CameraPage> {
                   ]),
                 ),
                 const SizedBox(height: 16),
-                // Scan button
+                // Scan / Load saved cameras button
                 SizedBox(
                   width: double.infinity, height: 48,
                   child: OutlinedButton(
@@ -623,13 +790,34 @@ class _CameraPageState extends State<CameraPage> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
-                      isScanning ? 'Scanning...' : '🔍 Scan for Cameras',
+                      isScanning
+                        ? (_isIOS ? 'Loading...' : 'Scanning...')
+                        : (_isIOS ? '📷 Load Saved Cameras' : '🔍 Scan for Cameras'),
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.text),
                     ),
                   ),
                 ),
+                // iOS: Add New Camera button
+                if (_isIOS) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity, height: 48,
+                    child: OutlinedButton(
+                      onPressed: _addNewCameraIOS,
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.primary),
+                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text(
+                        '+ Add New Camera',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primary),
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
-                // Wi-Fi list
+                // Network / Saved Camera list
                 if (networks.isNotEmpty || isScanning)
                   Container(
                     constraints: const BoxConstraints(maxHeight: 250),
@@ -650,15 +838,66 @@ class _CameraPageState extends State<CameraPage> {
                           itemBuilder: (_, i) {
                             final net = networks[i];
                             final ssid = net['ssid'] ?? '';
-                            final level = net['level'] ?? 0;
-                            return ListTile(
-                              title: Text(ssid, style: const TextStyle(fontSize: 14)),
-                              trailing: Text('${level}dBm', style: const TextStyle(fontSize: 12, color: AppColors.textDim)),
-                              onTap: () => _connect(ssid),
-                              dense: true,
-                            );
+                            final isSaved = net['saved'] == true;
+                            final isLastUsed = net['isLastUsed'] == 'true';
+                            
+                            if (_isIOS) {
+                              // iOS: show saved cameras with auto-connect and delete
+                              return ListTile(
+                                leading: Icon(
+                                  isLastUsed ? Icons.star : Icons.wifi,
+                                  color: isLastUsed ? const Color(0xFFF59E0B) : AppColors.textDim,
+                                  size: 20,
+                                ),
+                                title: Text(ssid, style: const TextStyle(fontSize: 14)),
+                                subtitle: isLastUsed
+                                  ? const Text('Last used', style: TextStyle(fontSize: 11, color: Color(0xFFF59E0B)))
+                                  : null,
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline, color: AppColors.textDim, size: 18),
+                                      onPressed: () => _deleteSavedCamera(ssid),
+                                    ),
+                                    const Icon(Icons.chevron_right, color: AppColors.textDim, size: 20),
+                                  ],
+                                ),
+                                onTap: () => _connect(ssid, isSaved: true),
+                                dense: true,
+                              );
+                            } else {
+                              // Android: show scanned WiFi networks
+                              final level = net['level'] ?? 0;
+                              return ListTile(
+                                title: Text(ssid, style: const TextStyle(fontSize: 14)),
+                                trailing: Text('${level}dBm', style: const TextStyle(fontSize: 12, color: AppColors.textDim)),
+                                onTap: () => _connect(ssid),
+                                dense: true,
+                              );
+                            }
                           },
                         ),
+                  ),
+                // iOS first-time setup message
+                if (_isIOS && _showFirstTimeSetup)
+                  Container(
+                    margin: const EdgeInsets.only(top: 12),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                    ),
+                    child: Column(children: [
+                      const Text('📱 First Time Setup', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Tap "+ Add New Camera" above to connect your Insta360 camera for the first time. After the first setup, the app will auto-connect!',
+                        style: TextStyle(fontSize: 12, color: AppColors.textDim),
+                        textAlign: TextAlign.center,
+                      ),
+                    ]),
                   ),
               ]),
             ),

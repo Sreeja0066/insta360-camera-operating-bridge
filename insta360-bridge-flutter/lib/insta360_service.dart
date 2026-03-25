@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 class Insta360Service {
   static const MethodChannel _channel = MethodChannel('com.noveloffice.insta360bridge/camera');
@@ -57,6 +58,29 @@ class Insta360Service {
 
   Future<void> setDemoMode(bool enabled) async {
     await _channel.invokeMethod('setDemoMode', {'enabled': enabled});
+  }
+
+  // ===== iOS WiFi Management =====
+
+  bool get isIOS => Platform.isIOS;
+
+  Future<List<Map<String, dynamic>>> getSavedCameras() async {
+    final result = await _channel.invokeMethod<String>('getSavedCameras');
+    if (result == null || result.isEmpty) return [];
+    final List<dynamic> decoded = jsonDecode(result);
+    return decoded.cast<Map<String, dynamic>>();
+  }
+
+  Future<void> removeSavedCamera(String ssid) async {
+    await _channel.invokeMethod('removeSavedCamera', {'ssid': ssid});
+  }
+
+  Future<String?> getCurrentSSID() async {
+    return await _channel.invokeMethod<String>('getCurrentSSID');
+  }
+
+  Future<void> openWifiSettings() async {
+    await _channel.invokeMethod('openWifiSettings');
   }
 
   Future<T?> invokeMethod<T>(String method, [dynamic arguments]) async {
