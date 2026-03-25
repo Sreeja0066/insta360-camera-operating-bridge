@@ -57,6 +57,10 @@ class Insta360Channel(
             "getStatus" -> result.success(bgService?.cameraControl?.getStatus() ?: "DISCONNECTED")
             "connectCamera" -> connectCamera(result)
             "scanWifi" -> scanWifi(result)
+            "stopScan" -> {
+                wifiHelper.stopScan()
+                result.success(null)
+            }
             "connectWifi" -> {
                 val ssid = call.argument<String>("ssid") ?: ""
                 val pwd = call.argument<String>("password") ?: ""
@@ -83,6 +87,12 @@ class Insta360Channel(
             }
             "uploadPendingFiles" -> uploadPendingFiles(result)
             "getPendingUploadCount" -> result.success(bgService?.driveUploader?.getPendingFiles()?.size ?: 0)
+            "openWifiSettings" -> {
+                val intent = android.content.Intent(android.provider.Settings.ACTION_WIFI_SETTINGS)
+                intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                activity.startActivity(intent)
+                result.success(null)
+            }
             else -> result.notImplemented()
         }
     }

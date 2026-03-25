@@ -541,6 +541,14 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
+  void _stopScan() async {
+    _log('Stopping scan...');
+    await Insta360Service.instance.stopScan();
+    if (mounted) {
+      setState(() => isScanning = false);
+    }
+  }
+
   void _connect(String ssid, {bool isSaved = false}) {
     final controller = TextEditingController(text: '88888888');
     

@@ -48,6 +48,10 @@ class Insta360Service {
     await _channel.invokeMethod('scanWifi');
   }
 
+  Future<void> stopScan() async {
+    await _channel.invokeMethod('stopScan');
+  }
+
   Future<void> connectWifi(String ssid, String password) async {
     await _channel.invokeMethod('connectWifi', {'ssid': ssid, 'password': password});
   }

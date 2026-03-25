@@ -77,5 +77,10 @@
 	<array>
 		<string>com.noveloffice.insta360bridge.upload</string>
 	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>App-Prefs</string>
+		<string>prefs</string>
+	</array>
 </dict>
 </plist>

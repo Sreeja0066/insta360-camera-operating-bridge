@@ -1,17 +1,25 @@
 import Flutter
 import UIKit
+import INSCameraSDK
 
-class Insta360Channel: NSObject, FlutterPlugin {
+class Insta360Channel: NSObject, FlutterPlugin, INSCameraManagerDelegate {
     private var channel: FlutterMethodChannel?
     private let wifiHelper = WifiHelper.shared
     private let recordingManager = RecordingManager.shared
     private var demoMode = false
+    
+    // SDK Managers
+    private let cameraManager = INSCameraManager.shared
     
     static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "com.noveloffice.insta360bridge/camera", binaryMessenger: registrar.messenger())
         let instance = Insta360Channel()
         instance.channel = channel
         registrar.addMethodCallDelegate(instance, channel: channel)
+        
+        // Set camera manager delegate
+        INSCameraManager.shared.delegate = instance
+        
         instance.setupCallbacks()
         
         // Auto-connect to last-used camera on launch
@@ -27,8 +35,9 @@ class Insta360Channel: NSObject, FlutterPlugin {
         wifiHelper.onConnectionStatus = { [weak self] status in
             self?.invokeDartEvent("onWifiConnected", arguments: ["status": status])
             if status == "CONNECTED" {
-                // Camera SDK setup can happen here if needed
-                print("[Insta360Channel] WiFi connected, ready for camera SDK setup")
+                // Once WiFi is connected, trigger the SDK to connect to the camera
+                print("[Insta360Channel] WiFi connected, triggering SDK camera connection")
+                self?.cameraManager.connect()
             }
         }
     }
@@ -41,7 +50,8 @@ class Insta360Channel: NSObject, FlutterPlugin {
         case "getStatus":
             result(getCameraStatus())
         case "connectCamera":
-            connectCamera(result: result)
+            cameraManager.connect()
+            result(nil)
         case "startRecording":
             startRecording(result: result)
         case "stopRecording":
@@ -50,6 +60,10 @@ class Insta360Channel: NSObject, FlutterPlugin {
         // WiFi management
         case "scanWifi":
             wifiHelper.scanWifi()
+            result(nil)
+        case "stopScan":
+            // On iOS, scanning is just returning a list, but we acknowledge the stop request
+            print("[Insta360Channel] stopScan called")
             result(nil)
         case "connectWifi":
             let args = call.arguments as? [String: Any] ?? [:]
@@ -73,12 +87,18 @@ class Insta360Channel: NSObject, FlutterPlugin {
         case "getCurrentSSID":
             result(wifiHelper.getCurrentSSID())
         case "openWifiSettings":
-            if let url = URL(string: "App-Prefs:root=WIFI") {
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url)
-                } else if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(settingsUrl)
+            // Attempt multiple known schemes to get directly to the WIFI tab
+            let schemes = ["App-Prefs:root=WIFI", "App-Prefs:WIFI", "prefs:root=WIFI"]
+            for scheme in schemes {
+                if let url = URL(string: scheme), UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    result(nil)
+                    return
                 }
+            }
+            // Fallback to general settings
+            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsUrl)
             }
             result(nil)
             
@@ -131,26 +151,80 @@ class Insta360Channel: NSObject, FlutterPlugin {
         }
     }
     
-    // MARK: - Camera Control
+    // MARK: - Camera Control Implementation
     
     private func getCameraStatus() -> String {
-        // Basic status check — will be enhanced with INSCameraSDK later
-        return "DISCONNECTED"
-    }
-    
-    private func connectCamera(result: @escaping FlutterResult) {
-        // Camera SDK setup — will be enhanced later
-        print("[Insta360Channel] connectCamera called")
-        result(nil)
+        if demoMode { return "CONNECTED" }
+        
+        switch cameraManager.state {
+        case .connected:
+            return "CONNECTED"
+        case .connecting:
+            return "CONNECTING"
+        default:
+            return "DISCONNECTED"
+        }
     }
     
     private func startRecording(result: @escaping FlutterResult) {
         print("[Insta360Channel] startRecording called")
+        if demoMode {
+            invokeDartEvent("onRecordingStarted")
+            result(nil)
+            return
+        }
+        
+        cameraManager.startCapture { [weak self] error in
+            if let error = error {
+                print("[Insta360Channel] startCapture error: \(error.localizedDescription)")
+                self?.invokeDartEvent("onRecordingFailed", arguments: ["reason": error.localizedDescription])
+            } else {
+                print("[Insta360Channel] startCapture success")
+                self?.invokeDartEvent("onRecordingStarted")
+            }
+        }
         result(nil)
     }
     
     private func stopRecording(result: @escaping FlutterResult) {
         print("[Insta360Channel] stopRecording called")
+        if demoMode {
+            invokeDartEvent("onRecordingStopped")
+            result(nil)
+            return
+        }
+        
+        cameraManager.stopCapture { [weak self] error in
+            if let error = error {
+                print("[Insta360Channel] stopCapture error: \(error.localizedDescription)")
+                self?.invokeDartEvent("onRecordingStopFailed", arguments: ["reason": error.localizedDescription])
+            } else {
+                print("[Insta360Channel] stopCapture success")
+                self?.invokeDartEvent("onRecordingStopped")
+            }
+        }
         result(nil)
+    }
+    
+    // MARK: - INSCameraManagerDelegate
+    
+    func cameraManager(_ manager: INSCameraManager, didChange state: INSCameraState) {
+        print("[Insta360Channel] Camera state changed to: \(state.rawValue)")
+        // Map SDK state to our status string
+        let status: String
+        switch state {
+        case .connected: status = "CONNECTED"
+        case .connecting: status = "CONNECTING"
+        case .disconnecting: status = "DISCONNECTING"
+        case .disconnected: status = "DISCONNECTED"
+        @unknown default: status = "UNKNOWN"
+        }
+        
+        // We could send a general status event here if Flutter listens for it
+        // invokeDartEvent("onCameraStatusChanged", arguments: ["status": status])
+    }
+    
+    func cameraManager(_ manager: INSCameraManager, didOccur error: Error) {
+        print("[Insta360Channel] Camera error occurred: \(error.localizedDescription)")
     }
 }
