@@ -63,6 +63,12 @@
 	<string>This app needs access to the local network to connect to the Insta360 camera.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location access is required to scan for the camera's Wi-Fi network.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app uses the camera to preview and capture content from the connected Insta360 camera.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app uses the microphone to record audio with video captured by the Insta360 camera.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app saves exported videos and photos from the Insta360 camera to your photo library.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Bluetooth is used to discover and wake up the Insta360 camera.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
