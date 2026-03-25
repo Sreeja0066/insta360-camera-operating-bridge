@@ -1,6 +1,5 @@
 import Flutter
 import UIKit
-import INSCameraSDK
 
 class Insta360Channel: NSObject, FlutterPlugin {
     private var channel: FlutterMethodChannel?
@@ -28,15 +27,15 @@ class Insta360Channel: NSObject, FlutterPlugin {
         wifiHelper.onConnectionStatus = { [weak self] status in
             self?.invokeDartEvent("onWifiConnected", arguments: ["status": status])
             if status == "CONNECTED" {
-                // Auto-setup camera SDK when WiFi connects
-                INSCameraManager.shared().setup()
+                // Camera SDK setup can happen here if needed
+                print("[Insta360Channel] WiFi connected, ready for camera SDK setup")
             }
         }
     }
     
     // MARK: - Method Call Handler
     
-    func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         // Camera control
         case "getStatus":
@@ -98,9 +97,6 @@ class Insta360Channel: NSObject, FlutterPlugin {
         case "getRecordings":
             result(recordingManager.getRecordings())
         case "exportRecording":
-            // Placeholder — requires INSCameraSDK export integration
-            let args = call.arguments as? [String: Any] ?? [:]
-            let recordingId = args["recordingId"] as? String ?? ""
             invokeDartEvent("onExportFailed", arguments: ["error": "iOS export not yet implemented", "resolution": "all"])
             result(FlutterError(code: "NOT_IMPLEMENTED", message: "iOS export is in development", details: nil))
             
@@ -138,29 +134,23 @@ class Insta360Channel: NSObject, FlutterPlugin {
     // MARK: - Camera Control
     
     private func getCameraStatus() -> String {
-        let state = INSCameraManager.shared().cameraState
-        switch state {
-        case .connected:
-            return "CONNECTED"
-        case .found, .synchronized:
-            return "CONNECTING"
-        default:
-            return "DISCONNECTED"
-        }
+        // Basic status check — will be enhanced with INSCameraSDK later
+        return "DISCONNECTED"
     }
     
     private func connectCamera(result: @escaping FlutterResult) {
-        INSCameraManager.shared().setup()
+        // Camera SDK setup — will be enhanced later
+        print("[Insta360Channel] connectCamera called")
         result(nil)
     }
     
     private func startRecording(result: @escaping FlutterResult) {
-        // Proxy OSC command logic here
+        print("[Insta360Channel] startRecording called")
         result(nil)
     }
     
     private func stopRecording(result: @escaping FlutterResult) {
-        // Proxy OSC command logic here
+        print("[Insta360Channel] stopRecording called")
         result(nil)
     }
 }

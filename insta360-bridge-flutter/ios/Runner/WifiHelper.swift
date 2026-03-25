@@ -1,6 +1,5 @@
 import Foundation
 import NetworkExtension
-import SystemConfiguration.CaptiveNetwork
 import Security
 
 class WifiHelper {
@@ -41,7 +40,18 @@ class WifiHelper {
     func connectToNetwork(ssid: String, password: String) {
         onConnectionStatus?("CONNECTING")
         
-        let configuration = NEHotspotConfiguration(ssid: ssid, passphrase: password, isWEP: false)
+        // If password is empty, this is a reconnect from saved camera — get from Keychain
+        var actualPassword = password
+        if actualPassword.isEmpty {
+            actualPassword = getPasswordFromKeychain(ssid: ssid) ?? ""
+        }
+        
+        guard !actualPassword.isEmpty else {
+            onConnectionStatus?("FAILED: No password available")
+            return
+        }
+        
+        let configuration = NEHotspotConfiguration(ssid: ssid, passphrase: actualPassword, isWEP: false)
         configuration.joinOnce = false // Persist the connection
         
         NEHotspotConfigurationManager.shared.apply(configuration) { [weak self] error in
@@ -52,7 +62,7 @@ class WifiHelper {
                         switch nsError.code {
                         case NEHotspotConfigurationError.alreadyAssociated.rawValue:
                             // Already connected to this network — treat as success
-                            self?.saveCamera(ssid: ssid, password: password)
+                            self?.saveCamera(ssid: ssid, password: actualPassword)
                             self?.onConnectionStatus?("CONNECTED")
                         case NEHotspotConfigurationError.userDenied.rawValue:
                             self?.onConnectionStatus?("USER_DENIED")
@@ -68,7 +78,7 @@ class WifiHelper {
                     }
                 } else {
                     // Success — save camera for auto-connect
-                    self?.saveCamera(ssid: ssid, password: password)
+                    self?.saveCamera(ssid: ssid, password: actualPassword)
                     self?.onConnectionStatus?("CONNECTED")
                 }
             }
@@ -88,11 +98,10 @@ class WifiHelper {
     // MARK: - Get current WiFi SSID
     
     func getCurrentSSID() -> String? {
-        // Requires "Access WiFi Information" entitlement
-        guard let interfaces = CNCopySupportedInterfaces() as? [String] else { return nil }
-        for interface in interfaces {
-            guard let info = CNCopyCurrentNetworkInfo(interface as CFString) as? [String: Any] else { continue }
-            return info[kCNNetworkInfoKeySSID as String] as? String
+        // NEHotspotNetwork is available iOS 14+
+        if #available(iOS 14.0, *) {
+            // This requires async, return nil for now — the Flutter side will handle it
+            return nil
         }
         return nil
     }
@@ -101,7 +110,7 @@ class WifiHelper {
     
     func saveCamera(ssid: String, password: String) {
         // Save password to Keychain
-        let passwordData = password.data(using: .utf8)!
+        guard let passwordData = password.data(using: .utf8) else { return }
         
         // Delete existing entry if any
         let deleteQuery: [String: Any] = [
