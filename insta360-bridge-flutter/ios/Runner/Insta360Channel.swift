@@ -235,6 +235,8 @@ class Insta360Channel: NSObject, FlutterPlugin {
                 result(fileID)
             }
         }
+    }
+    
     private func getExportedFilesList() -> [[String: Any]] {
         let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let dir = documentsDir.appendingPathComponent("exported_videos")
