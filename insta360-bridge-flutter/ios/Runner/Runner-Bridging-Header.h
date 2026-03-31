@@ -1,8 +1,4 @@
 #import "GeneratedPluginRegistrant.h"
 
-// Insta360 SDK
+// Insta360 SDK (umbrella header includes all sub-headers)
 #import <INSCameraSDK/INSCameraSDK.h>
-#import <INSCameraSDK/INSWork.h>
-#import <INSCameraSDK/INSExportManager.h>
-#import <INSCameraSDK/INSExportOptions.h>
-#import <INSCameraSDK/INSCameraResources.h>
