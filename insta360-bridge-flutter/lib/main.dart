@@ -1422,17 +1422,38 @@ class GalleryPage extends StatefulWidget {
 }
 
 class _GalleryPageState extends State<GalleryPage> {
-  List<dynamic> recordings = [];
+  List<Map<String, dynamic>> exportedFiles = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadGallery();
+    _loadExportedFiles();
   }
 
-  void _loadGallery() async {
-    final results = await Insta360Service.instance.getRecordings();
-    if (mounted) setState(() => recordings = results);
+  Future<void> _loadExportedFiles() async {
+    if (!mounted) return;
+    setState(() => isLoading = true);
+    try {
+      final files = await Insta360Service.instance.getExportedFiles();
+      if (!mounted) return;
+      setState(() {
+        exportedFiles = files;
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading files: $e');
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  void _playVideo(String path, String name) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoPlayerScreen(videoPath: path, title: name),
+      ),
+    );
   }
 
   @override
@@ -1443,22 +1464,9 @@ class _GalleryPageState extends State<GalleryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [Color(0xFF818CF8), Color(0xFFA78BFA)],
-                  ).createShader(bounds),
-                  child: const Text('Saved Videos',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(99),
                 const Text('Saved Videos',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
                 IconButton(
