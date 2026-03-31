@@ -1,9 +1,9 @@
 #import "GeneratedPluginRegistrant.h"
 
-// Insta360 SDK Umbrella + Key Headers for Swift visibility
-#import <INSCameraSDK/INSCameraSDK.h>
-#import <INSCameraSDK/INSWork.h>
-#import <INSCameraSDK/INSExportManager.h>
-#import <INSCameraSDK/INSExportOptions.h>
-#import <INSCameraSDK/INSExportOptions+Video.h>
-#import <INSCameraSDK/INSCameraResources.h>
+// Insta360 SDK Umbrella + Key Headers
+#import "INSCameraSDK.h"
+#import "INSWork.h"
+#import "INSExportManager.h"
+#import "INSExportOptions.h"
+#import "INSExportOptions+Video.h"
+#import "INSCameraResources.h"
