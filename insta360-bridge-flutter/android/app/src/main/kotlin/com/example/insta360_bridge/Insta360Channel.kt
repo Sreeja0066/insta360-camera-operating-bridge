@@ -87,6 +87,11 @@ class Insta360Channel(
             }
             "uploadPendingFiles" -> uploadPendingFiles(result)
             "getPendingUploadCount" -> result.success(bgService?.driveUploader?.getPendingFiles()?.size ?: 0)
+            "getCurrentSSID" -> result.success(wifiHelper.getCurrentSSID())
+            "getExportedFiles" -> {
+                val files = bgService?.videoExporter?.getExportedFiles() ?: emptyList()
+                result.success(JSONArray(files).toString())
+            }
             "openWifiSettings" -> {
                 val intent = android.content.Intent(android.provider.Settings.ACTION_WIFI_SETTINGS)
                 intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
@@ -249,12 +254,14 @@ class Insta360Channel(
                 object : VideoExporter.ExportCallback {
                     override fun onProgress(progress: Float, resolution: String) {
                         val pct = (progress * 100).toInt()
+                        bgService?.updateNotification("Exporting Video", "Processing $resolution: $pct%", pct)
                         invokeDartEvent("onExportProgress", mapOf("progress" to pct, "resolution" to resolution))
                     }
 
                     override fun onSuccess(outputPath: String, resolution: String) {
                         invokeDartEvent("onExportSuccess", mapOf("path" to outputPath, "resolution" to resolution))
                         if (resolution == "1080P") {
+                            bgService?.updateNotification("Export Complete", "Videos are ready to upload.", -1)
                             result.success("Export Complete")
                         }
                     }

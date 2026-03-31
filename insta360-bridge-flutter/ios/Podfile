@@ -23,6 +23,10 @@ target 'Runner' do
 
   # Use the local Insta360 SDK from the Frameworks folder which bundles ALL dependencies
   pod 'INSCameraSDK', :path => 'Frameworks'
+  
+  # Google Drive and Auth for Native iOS
+  pod 'AppAuth', '~> 1.6'
+  pod 'GoogleAPIClientForREST/Drive', '~> 3.0'
 end
 
 post_install do |installer|

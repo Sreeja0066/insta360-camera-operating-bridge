@@ -128,6 +128,32 @@ class Insta360BackgroundService : Service() {
         }
     }
 
+    fun updateNotification(title: String, content: String, progress: Int = -1, max: Int = 100) {
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(content)
+            .setSmallIcon(if (progress >= 0) android.R.drawable.stat_sys_upload else android.R.drawable.stat_notify_sync)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+
+        if (progress >= 0) {
+            builder.setProgress(max, progress, false)
+        }
+
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        notificationIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, pendingIntentFlags)
+        builder.setContentIntent(pendingIntent)
+
+        manager.notify(NOTIFICATION_ID, builder.build())
+    }
+
     fun updateNotificationContext(message: String) {
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(NOTIFICATION_ID, createNotification(message))

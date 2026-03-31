@@ -120,4 +120,11 @@ class Insta360Service {
     final result = await _channel.invokeMethod<int>('getPendingUploadCount');
     return result ?? 0;
   }
+
+  Future<List<Map<String, dynamic>>> getExportedFiles() async {
+    final result = await _channel.invokeMethod<String>('getExportedFiles');
+    if (result == null || result.isEmpty) return [];
+    final List<dynamic> decoded = jsonDecode(result);
+    return decoded.cast<Map<String, dynamic>>();
+  }
 }

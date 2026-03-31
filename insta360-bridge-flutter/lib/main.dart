@@ -6,6 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 import 'insta360_service.dart';
 
 // ===== DESIGN TOKENS (from companion app styles.css) =====
@@ -14,8 +17,8 @@ class AppColors {
   static const bgCard = Color(0xDD161E32); // rgba(22,30,50,0.85)
   static const primary = Color(0xFF6366F1);
   static const primaryGlow = Color(0x4D6366F1);
-  static const success = Color(0xFF22C55E);
-  static const successGlow = Color(0x4D22C55E);
+  static const success = Color(0xFF6366F1); // Indigo/Blue for Start
+  static const successGlow = Color(0x4D6366F1);
   static const danger = Color(0xFFEF4444);
   static const dangerGlow = Color(0x4DEF4444);
   static const text = Color(0xFFF1F5F9);
@@ -621,7 +624,14 @@ class _CameraPageState extends State<CameraPage> {
     await Insta360Service.instance.openWifiSettings();
   }
 
+  void _stopScan() {
+    Insta360Service.instance.stopScan();
+    if (mounted) setState(() => isScanning = false);
+    _log('Scan stopped manually.');
+  }
+
   void _addNewCameraIOS() {
+ Riverside: file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/insta360-bridge-flutter/lib/main.dart:793
     // Show dialog explaining how to add a new camera
     showDialog(
       context: context,
@@ -681,60 +691,84 @@ class _CameraPageState extends State<CameraPage> {
     if (!mounted) return;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Save Camera', style: TextStyle(fontSize: 16)),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(
-            controller: ssidController,
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-              hintText: 'Camera WiFi Name (SSID)',
-              filled: true,
-              fillColor: Colors.black.withOpacity(0.3),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: const Color(0xFF1E293B),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Save Camera', style: TextStyle(fontSize: 16)),
+              IconButton(
+                icon: const Icon(Icons.refresh, size: 20, color: AppColors.primary),
+                tooltip: 'Refresh Wi-Fi Name',
+                onPressed: () async {
+                  final ssid = await Insta360Service.instance.getCurrentSSID();
+                  if (ssid != null) {
+                    setDialogState(() {
+                      ssidController.text = ssid;
+                    });
+                    _log('Auto-detected: $ssid');
+                  } else {
+                    _log('Auto-detection failed. Still connected?');
+                  }
+                },
+              ),
+            ],
+          ),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(
+              controller: ssidController,
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                hintText: 'Camera WiFi Name (SSID)',
+                helperText: currentSSID != null ? 'Auto-detected ✅' : 'Connect in Settings then hit refresh ☝️',
+                helperStyle: const TextStyle(fontSize: 10, color: AppColors.success),
+                filled: true,
+                fillColor: Colors.black.withOpacity(0.3),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: passwordController,
-            obscureText: true,
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-              hintText: 'Camera WiFi Password',
-              filled: true,
-              fillColor: Colors.black.withOpacity(0.3),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                hintText: 'Camera WiFi Password',
+                filled: true,
+                fillColor: Colors.black.withOpacity(0.3),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+              ),
             ),
-          ),
-        ]),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textDim)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              final ssid = ssidController.text.trim();
-              final password = passwordController.text.trim();
-              if (ssid.isNotEmpty && password.isNotEmpty) {
-                _log('Saving & connecting to $ssid...');
-                await Insta360Service.instance.connectWifi(ssid, password);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ]),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel', style: TextStyle(color: AppColors.textDim)),
             ),
-            child: const Text('Save & Connect'),
-          ),
-        ],
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                final ssid = ssidController.text.trim();
+                final password = passwordController.text.trim();
+                if (ssid.isNotEmpty && password.isNotEmpty) {
+                  _log('Saving & connecting to $ssid...');
+                  await Insta360Service.instance.connectWifi(ssid, password);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: const Text('Save & Connect'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -788,23 +822,45 @@ class _CameraPageState extends State<CameraPage> {
                 ),
                 const SizedBox(height: 16),
                 // Scan / Load saved cameras button
-                SizedBox(
-                  width: double.infinity, height: 48,
-                  child: OutlinedButton(
-                    onPressed: isScanning ? null : _scan,
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.border),
-                      backgroundColor: Colors.white.withOpacity(0.05),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 48,
+                        child: OutlinedButton(
+                          onPressed: isScanning ? null : _scan,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.border),
+                            backgroundColor: Colors.white.withOpacity(0.05),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: Text(
+                            isScanning
+                              ? (_isIOS ? 'Loading...' : 'Scanning...')
+                              : (_isIOS ? '📷 Load Saved Cameras' : '🔍 Scan for Cameras'),
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.text),
+                          ),
+                        ),
+                      ),
                     ),
-                    child: Text(
-                      isScanning
-                        ? (_isIOS ? 'Loading...' : 'Scanning...')
-                        : (_isIOS ? '📷 Load Saved Cameras' : '🔍 Scan for Cameras'),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.text),
-                    ),
-                  ),
+                    if (isScanning && !_isIOS) ...[
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        height: 48,
+                        child: OutlinedButton(
+                          onPressed: _stopScan,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.danger),
+                            backgroundColor: AppColors.danger.withOpacity(0.1),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Icon(Icons.stop, color: AppColors.danger, size: 20),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
+ Riverside: file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/insta360-bridge-flutter/lib/main.dart:821
                 // iOS: Add New Camera button
                 if (_isIOS) ...[
                   const SizedBox(height: 8),
@@ -957,6 +1013,7 @@ class _LayoutPageState extends State<LayoutPage> {
   Timer? _timer;
   int _seconds = 0;
   List<String> logs = ['[System] Ready...'];
+  final GlobalKey _canvasKey = GlobalKey();
 
   late StreamSubscription _sub;
 
@@ -979,6 +1036,7 @@ class _LayoutPageState extends State<LayoutPage> {
       } else if (e == 'onRecordingStopped') {
         _timer?.cancel();
         _saveMetadata();
+        _captureLayoutImage(); // Capture layout with points!
         setState(() {
           isRecording = false;
           instructionText = 'Recording saved! Tap map to set new start point';
@@ -1013,6 +1071,32 @@ class _LayoutPageState extends State<LayoutPage> {
       'stopPoint': stopPoint != null ? {'x': stopPoint!.dx, 'y': stopPoint!.dy} : null,
     };
     Insta360Service.instance.invokeMethod('saveRecordingMetadata', {'data': jsonEncode(metadata)});
+  }
+
+  Future<void> _captureLayoutImage() async {
+    try {
+      final boundary = _canvasKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) return;
+      
+      final image = await boundary.toImage(pixelRatio: 2.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return;
+      
+      final bytes = byteData.buffer.asUint8List();
+      final tempDir = await getTemporaryDirectory();
+      final layoutPath = '${tempDir.path}/layout_${DateTime.now().millisecondsSinceEpoch}.png';
+      final file = File(layoutPath);
+      await file.writeAsBytes(bytes);
+      
+      _layoutLog('Layout Image captured ✅');
+      
+      // Auto-upload layout to drive if linked
+      // We pass the path to the service
+      Insta360Service.instance.invokeMethod('uploadToDrive', {'filePath': layoutPath});
+      
+    } catch (e) {
+      _layoutLog('Capture Failed: $e');
+    }
   }
 
   Future<void> _pickImage() async {
@@ -1246,6 +1330,8 @@ class _LayoutPageState extends State<LayoutPage> {
                   _layoutLog('Start point set.');
                 }
               },
+            child: RepaintBoundary(
+              key: _canvasKey,
               child: Stack(children: [
                 Image.file(layoutImage!, fit: BoxFit.contain, width: double.infinity),
                 CustomPaint(
@@ -1253,6 +1339,7 @@ class _LayoutPageState extends State<LayoutPage> {
                   size: Size.infinite,
                 ),
               ]),
+            ),
             ),
           ),
         ),
@@ -1372,26 +1459,28 @@ class _GalleryPageState extends State<GalleryPage> {
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(99),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Text('${recordings.length} recording${recordings.length != 1 ? 's' : ''}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textDim)),
+                const Text('Saved Videos',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+                IconButton(
+                  onPressed: _loadExportedFiles,
+                  icon: const Icon(Icons.refresh, color: AppColors.textDim, size: 20),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            // Content
             Expanded(
-              child: recordings.isEmpty
-                ? _buildEmptyState()
-                : RefreshIndicator(
-                    onRefresh: () async => _loadGallery(),
-                    child: ListView.separated(
-                      itemCount: recordings.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (_, i) => _buildRecordingCard(recordings[i]),
+              child: isLoading
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                : exportedFiles.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      onRefresh: _loadExportedFiles,
+                      child: ListView.separated(
+                        itemCount: exportedFiles.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (_, i) => _buildExportedCard(exportedFiles[i]),
+                      ),
                     ),
-                  ),
             ),
           ],
         ),
@@ -1404,24 +1493,23 @@ class _GalleryPageState extends State<GalleryPage> {
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         const Opacity(opacity: 0.6, child: Text('🎬', style: TextStyle(fontSize: 56))),
         const SizedBox(height: 12),
-        const Text('No recordings yet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        const Text('No exported videos yet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         const SizedBox(height: 4),
-        const Text('Complete a recording on the Layout page',
+        const Text('Export recordings from the Layout page to watch them here',
           style: TextStyle(fontSize: 13, color: AppColors.textDim), textAlign: TextAlign.center),
       ]),
     );
   }
 
-  Widget _buildRecordingCard(dynamic rec) {
-    final id = rec['id'] ?? 'Unknown';
-    final ts = rec['timestamp'] != null ? DateTime.tryParse(rec['timestamp']) : null;
-    final dateStr = ts != null ? DateFormat('MMM d, yyyy · hh:mm a').format(ts) : '';
-    final dur = rec['duration'] ?? 0;
-    final durStr = '${(dur ~/ 60).toString().padLeft(2, '0')}:${(dur % 60).toString().padLeft(2, '0')}';
-    final sp = rec['startPoint'];
-    final ep = rec['stopPoint'];
-    final startStr = sp != null ? '(${sp['x']?.toStringAsFixed(2)}, ${sp['y']?.toStringAsFixed(2)})' : 'N/A';
-    final stopStr = ep != null ? '(${ep['x']?.toStringAsFixed(2)}, ${ep['y']?.toStringAsFixed(2)})' : 'N/A';
+  Widget _buildExportedCard(Map<String, dynamic> file) {
+    final name = file['name'] ?? 'Unknown';
+    final res = file['resolution'] ?? 'N/A';
+    final size = file['sizeFormatted'] ?? '0 B';
+    final path = file['path'] ?? '';
+    final ts = file['lastModified'] != null 
+        ? DateTime.fromMillisecondsSinceEpoch(file['lastModified'] as int) 
+        : DateTime.now();
+    final dateStr = DateFormat('MMM d, yyyy · hh:mm a').format(ts);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1431,48 +1519,39 @@ class _GalleryPageState extends State<GalleryPage> {
         border: Border.all(color: AppColors.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // Header
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(id, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary, fontFamily: 'monospace')),
+          Expanded(child: Text(name, 
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary, fontFamily: 'monospace'),
+            overflow: TextOverflow.ellipsis,
+          )),
           Text(dateStr, style: const TextStyle(fontSize: 11, color: AppColors.textDim)),
         ]),
         const SizedBox(height: 10),
-        // Chips
-        Wrap(spacing: 8, children: [
-          _chip('🎥', '8K / 30fps'),
-          _chip('📁', 'MP4'),
-          _chip('⚡', 'FlowState'),
-        ]),
-        const SizedBox(height: 10),
-        // Points
         Row(children: [
-          _pointBadge(AppColors.success, 'Start: $startStr'),
-          const SizedBox(width: 12),
-          _pointBadge(AppColors.danger, 'Stop: $stopStr'),
+          _chip('📺', res),
+          const SizedBox(width: 8),
+          _chip('💾', size),
         ]),
-        const Divider(color: AppColors.border, height: 20),
-        // Footer
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Row(children: [
-            const Text('⏺ ', style: TextStyle(color: AppColors.danger, fontSize: 13)),
-            Text(durStr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, fontFamily: 'monospace')),
-          ]),
-          OutlinedButton(
-            onPressed: () {
-              Insta360Service.instance.exportRecording(id);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Exporting $id...'), behavior: SnackBarBehavior.floating),
-              );
-            },
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
-              backgroundColor: Colors.white.withOpacity(0.05),
+        const Divider(color: AppColors.border, height: 24),
+        SizedBox(
+          width: double.infinity,
+          height: 44,
+          child: ElevatedButton(
+            onPressed: () => _playVideo(path, name),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary.withOpacity(0.1),
+              foregroundColor: AppColors.primary,
+              elevation: 0,
+              side: const BorderSide(color: AppColors.primaryGlow),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
-            child: const Text('📤 Export', style: TextStyle(fontSize: 12, color: AppColors.textDim)),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Icon(Icons.play_circle_filled, size: 18),
+              const SizedBox(width: 8),
+              const Text('WATCH NOW', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+            ]),
           ),
-        ]),
+        ),
       ]),
     );
   }
@@ -1492,15 +1571,69 @@ class _GalleryPageState extends State<GalleryPage> {
       ]),
     );
   }
+}
 
-  Widget _pointBadge(Color color, String label) {
-    return Row(children: [
-      Container(width: 8, height: 8, decoration: BoxDecoration(
-        shape: BoxShape.circle, color: color,
-        boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 6)],
-      )),
-      const SizedBox(width: 5),
-      Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textDim)),
-    ]);
+// ===================================================================
+// VIDEO PLAYER SCREEN
+// ===================================================================
+class VideoPlayerScreen extends StatefulWidget {
+  final String videoPath;
+  final String title;
+
+  const VideoPlayerScreen({super.key, required this.videoPath, required this.title});
+
+  @override
+  State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
+}
+
+class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+  late VideoPlayerController _videoController;
+  ChewieController? _chewieController;
+
+  @override
+  void initState() {
+    super.initState();
+    _initPlayer();
+  }
+
+  Future<void> _initPlayer() async {
+    _videoController = VideoPlayerController.file(File(widget.videoPath));
+    await _videoController.initialize();
+    
+    _chewieController = ChewieController(
+      videoPlayerController: _videoController,
+      autoPlay: true,
+      looping: false,
+      aspectRatio: _videoController.value.aspectRatio,
+      allowFullScreen: true,
+      allowMuting: true,
+      showControls: true,
+      cupertinoProgressColors: ChewieProgressColors(playedColor: AppColors.primary),
+      materialProgressColors: ChewieProgressColors(playedColor: AppColors.primary),
+    );
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _videoController.dispose();
+    _chewieController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text(widget.title, style: const TextStyle(fontSize: 14)),
+        backgroundColor: Colors.black,
+      ),
+      body: Center(
+        child: _chewieController != null && _chewieController!.videoPlayerController.value.isInitialized
+            ? Chewie(controller: _chewieController!)
+            : const CircularProgressIndicator(color: AppColors.primary),
+      ),
+    );
   }
 }

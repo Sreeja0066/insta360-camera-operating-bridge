@@ -135,6 +135,13 @@ class DriveUploader(private val context: Context) {
 
                 Log.d(TAG, "Upload successful, file ID: ${driveFile.id}")
                 removeFromPending(filePath.absolutePath)
+                
+                // Delete local file to save space, as requested by user
+                if (filePath.exists()) {
+                    val deleted = filePath.delete()
+                    Log.d(TAG, "Local file deleted after upload: $deleted (${filePath.name})")
+                }
+                
                 callback.onSuccess(driveFile.id)
             } catch (e: IOException) {
                 Log.e(TAG, "Upload failed: ${e.message}")

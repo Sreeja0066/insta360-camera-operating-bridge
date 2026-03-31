@@ -1,6 +1,7 @@
 import Foundation
 import NetworkExtension
 import Security
+import SystemConfiguration.CaptiveNetwork
 
 class WifiHelper {
     
@@ -97,13 +98,26 @@ class WifiHelper {
     
     // MARK: - Get current WiFi SSID
     
-    func getCurrentSSID() -> String? {
+    func fetchCurrentSSID(completion: @escaping (String?) -> Void) {
         // NEHotspotNetwork is available iOS 14+
         if #available(iOS 14.0, *) {
-            // This requires async, return nil for now — the Flutter side will handle it
-            return nil
+            NEHotspotNetwork.fetchCurrent { network in
+                if let network = network {
+                    print("[WifiHelper] Found current network: \(network.ssid)")
+                    completion(network.ssid)
+                } else {
+                    print("[WifiHelper] No current network found (iOS 14+)")
+                    completion(nil)
+                }
+            }
+        } else {
+            // Fallback for older iOS versions (deprecated but still works)
+            let interfaces = CNCopySupportedInterfaces() as? [String]
+            let ssid = interfaces?
+                .compactMap { CNCopyCurrentNetworkInfo($0 as CFString) as? [String: Any] }
+                .first?["SSID"] as? String
+            completion(ssid)
         }
-        return nil
     }
     
     // MARK: - Keychain Camera Storage

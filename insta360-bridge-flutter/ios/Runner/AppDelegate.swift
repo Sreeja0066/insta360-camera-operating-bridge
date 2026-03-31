@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import INSCameraSDK
+import AppAuth
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -14,8 +15,20 @@ import INSCameraSDK
     Insta360Channel.register(with: registrar(forPlugin: "Insta360Channel")!)
     
     // Register background tasks
-    BackgroundManager.shared.registerTasks()
+    BackgroundManager.shared.setupNetworkMonitoring()
+    
+    // Request notification permissions
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
+    UNUserNotificationCenter.current().delegate = self
     
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+  
+  override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+      // Handle Google Drive OAuth redirect
+      if OIDAuthorizationService.resumeExternalUserAgentFlow(with: url) {
+          return true
+      }
+      return super.application(app, open: url, options: options)
   }
 }

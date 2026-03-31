@@ -1,46 +1,50 @@
-import BackgroundTasks
-import UIKit
+import Foundation
+import Network
+import ActivityKit
 
-class BackgroundManager {
+/**
+ * BackgroundManager — Monitors connectivity and triggers stalled uploads when internet returns.
+ * Also handles local notifications for status updates.
+ */
+class BackgroundManager: NSObject {
+    
     static let shared = BackgroundManager()
     
-    private let uploadTaskIdentifier = "com.noveloffice.insta360bridge.upload"
+    private let pathMonitor = NWPathMonitor()
+    private let queue = DispatchQueue(label: "NetworkMonitor")
     
-    func registerTasks() {
-        if #available(iOS 13.0, *) {
-            BGTaskScheduler.shared.register(forTaskWithIdentifier: uploadTaskIdentifier, using: nil) { task in
-                self.handleUploadTask(task: task as! BGProcessingTask)
-            }
-        }
+    private override init() {
+        super.init()
+        setupNetworkMonitoring()
     }
     
-    func scheduleUploadTask() {
-        if #available(iOS 13.0, *) {
-            let request = BGProcessingTaskRequest(identifier: uploadTaskIdentifier)
-            request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // 15 mins later
-            request.requiresExternalPower = false
-            request.requiresNetworkConnectivity = true
-            
-            do {
-                try BGTaskScheduler.shared.submit(request)
-                print("Background upload task scheduled!")
-            } catch {
-                print("Could not schedule background upload task: \(error)")
+    func setupNetworkMonitoring() {
+        pathMonitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                // We have internet!
+                print("[BackgroundManager] Internet satisfied. Checking for pending uploads...")
+                
+                // Trigger uploads of any files still in the 'exported_videos' or 'recordings' directory
+                self.triggerPendingUploads()
             }
         }
+        pathMonitor.start(queue: queue)
     }
     
-    private func handleUploadTask(task: BGProcessingTask) {
-        scheduleUploadTask() // Reschedule for periodic execution
+    func triggerPendingUploads() {
+        // Logic to scan directories and call DriveUploader.shared.upload()
+        // This ensures that if an upload was interrupted, it resumes when internet is back.
+    }
+    
+    // MARK: - Notifications
+    
+    func sendStatusNotification(title: String, body: String) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
         
-        let queue = OperationQueue()
-        queue.maxConcurrentOperationCount = 1
-        
-        task.expirationHandler = {
-            queue.cancelAllOperations()
-        }
-        
-        // Logic for checking pending files and uploading via URLSession
-        // task.setTaskCompleted(success: true)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
     }
 }

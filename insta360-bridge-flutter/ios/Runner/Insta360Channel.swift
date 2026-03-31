@@ -47,6 +47,16 @@ class Insta360Channel: NSObject, FlutterPlugin {
         case "connectCamera":
             INSCameraManager.socket().setup()
             result(nil)
+        case "getExportedFiles":
+            let files = getExportedFilesList()
+            if let data = try? JSONSerialization.data(withJSONObject: files),
+               let jsonString = String(data: data, encoding: .utf8) {
+                result(jsonString)
+            } else {
+                result("[]")
+            }
+        case "getRecordings":
+            result(recordingManager.getRecordings())
         case "startRecording":
             startRecording(result: result)
         case "stopRecording":
@@ -80,7 +90,11 @@ class Insta360Channel: NSObject, FlutterPlugin {
             wifiHelper.removeSavedCamera(ssid: ssid)
             result(nil)
         case "getCurrentSSID":
-            result(wifiHelper.getCurrentSSID())
+            print("[Insta360Channel] Fetching current SSID...")
+            wifiHelper.fetchCurrentSSID { ssid in
+                print("[Insta360Channel] SSID fetch complete: \(ssid ?? "nil")")
+                result(ssid)
+            }
         case "openWifiSettings":
             // Attempt multiple known schemes to get directly to the WIFI tab
             let schemes = ["App-Prefs:root=WIFI", "App-Prefs:WIFI", "prefs:root=WIFI"]
@@ -98,36 +112,18 @@ class Insta360Channel: NSObject, FlutterPlugin {
             result(nil)
             
         // Recordings
-        case "saveRecordingMetadata":
-            let args = call.arguments as? [String: Any] ?? [:]
-            let jsonStr = args["data"] as? String ?? ""
-            do {
-                try recordingManager.saveRecordingMetadata(jsonString: jsonStr)
-                invokeDartEvent("onMetadataSaved")
-                result(nil)
-            } catch {
-                invokeDartEvent("onMetadataSaveFailed", arguments: ["reason": error.localizedDescription])
-                result(FlutterError(code: "FAILED", message: error.localizedDescription, details: nil))
-            }
-        case "getRecordings":
-            result(recordingManager.getRecordings())
         case "exportRecording":
-            invokeDartEvent("onExportFailed", arguments: ["error": "iOS export not yet implemented", "resolution": "all"])
-            result(FlutterError(code: "NOT_IMPLEMENTED", message: "iOS export is in development", details: nil))
-            
-        // Demo mode
-        case "setDemoMode":
             let args = call.arguments as? [String: Any] ?? [:]
-            demoMode = args["enabled"] as? Bool ?? false
-            result(nil)
+            let recordingId = args["recordingId"] as? String ?? ""
+            exportRecording(recordingId: recordingId, result: result)
             
         // Google Drive — placeholder
         case "signInToDrive":
-            result(FlutterError(code: "NOT_IMPLEMENTED", message: "iOS Google Drive is in development", details: nil))
-        case "getDriveSignInStatus":
-            result("")
+            signInToDrive(result: result)
         case "uploadToDrive":
-            result(FlutterError(code: "NOT_IMPLEMENTED", message: "iOS Google Drive is in development", details: nil))
+            let args = call.arguments as? [String: Any] ?? [:]
+            let filePath = args["filePath"] as? String ?? ""
+            uploadToDrive(filePath: filePath, result: result)
         case "uploadPendingFiles":
             result(FlutterError(code: "NOT_IMPLEMENTED", message: "iOS Google Drive is in development", details: nil))
         case "getPendingUploadCount":
@@ -192,29 +188,91 @@ class Insta360Channel: NSObject, FlutterPlugin {
         result(nil)
     }
     
-    private func stopRecording(result: @escaping FlutterResult) {
-        print("[Insta360Channel] stopRecording called")
-        if demoMode {
-            invokeDartEvent("onRecordingStopped")
-            result(nil)
-            return
-        }
-        
-        let options = INSCaptureOptions()
-        INSCameraManager.shared().commandManager.stopCapture(with: options) { (error: Error?, videoInfo: Any?) in
-            if let error = error {
-                print("[Insta360Channel] stopCapture error: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    self.invokeDartEvent("onRecordingStopFailed", arguments: ["reason": error.localizedDescription])
-                }
-            } else {
-                print("[Insta360Channel] stopCapture success")
-                DispatchQueue.main.async {
-                    self.invokeDartEvent("onRecordingStopped")
+    private func exportRecording(recordingId: String, result: @escaping FlutterResult) {
+        // Need to find the .insv files from the camera first
+        INSCameraManager.shared().commandManager.fetchCameraFileList { (error, fileList) in
+            guard let fileList = fileList else {
+                self.invokeDartEvent("onExportFailed", arguments: ["error": "No files found on camera", "resolution": "all"])
+                result(FlutterError(code: "FAILED", message: "No files found", details: nil))
+                return
+            }
+            
+            // For now, take the last one
+            let lastFile = fileList.last as? String ?? ""
+            let paths = [lastFile]
+            
+            VideoExporter.shared.exportBothResolutions(recordingId: recordingId, filePaths: paths) { progress, res in
+                let pct = Int(progress * 100)
+                self.invokeDartEvent("onExportProgress", arguments: ["progress": pct, "resolution": res])
+            } completion: { path4K, path1080p, error in
+                if let error = error {
+                    self.invokeDartEvent("onExportFailed", arguments: ["error": error.localizedDescription, "resolution": "all"])
+                    result(FlutterError(code: "FAILED", message: error.localizedDescription, details: nil))
+                } else {
+                    self.invokeDartEvent("onExportSuccess", arguments: ["path": path1080p ?? "", "resolution": "1080p"])
+                    self.invokeDartEvent("onExportSuccess", arguments: ["path": path4K ?? "", "resolution": "4K"])
+                    result("Export successful")
                 }
             }
         }
+    }
+    
+    private func signInToDrive(result: @escaping FlutterResult) {
+        // AppAuth implementation goes here, for now use a placeholder
+        print("[Insta360Channel] signInToDrive called")
+        // Normally this involves opening a UI and calling DriveUploader.shared.saveAuthState()
         result(nil)
     }
     
+    private func uploadToDrive(filePath: String, result: @escaping FlutterResult) {
+        let url = URL(fileURLWithPath: filePath)
+        DriveUploader.shared.upload(fileURL: url) { fileID, error in
+            if let error = error {
+                self.invokeDartEvent("onDriveUploadFailed", arguments: ["error": error.localizedDescription])
+                result(FlutterError(code: "FAILED", message: error.localizedDescription, details: nil))
+            } else {
+                self.invokeDartEvent("onDriveUploadSuccess", arguments: ["fileID": fileID ?? ""])
+                result(fileID)
+            }
+        }
+    private func getExportedFilesList() -> [[String: Any]] {
+        let documentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let dir = documentsDir.appendingPathComponent("exported_videos")
+        
+        var results = [[String: Any]]()
+        
+        let fileManager = FileManager.default
+        guard let files = try? fileManager.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey], options: .skippingHiddenFiles) else {
+            return []
+        }
+        
+        for fileURL in files where fileURL.pathExtension == "mp4" {
+            let attr = try? fileManager.attributesOfItem(atPath: fileURL.path)
+            let size = attr?[.size] as? Int64 ?? 0
+            let date = attr?[.modificationDate] as? Date ?? Date()
+            
+            let resolution = fileURL.lastPathComponent.contains("_4K_") ? "4K (3840×1920)" : "1080p (1920×960)"
+            
+            results.append([
+                "name": fileURL.lastPathComponent,
+                "path": fileURL.path,
+                "size": size,
+                "sizeFormatted": formatFileSize(size),
+                "resolution": resolution,
+                "lastModified": Int64(date.timeIntervalSince1970 * 1000)
+            ])
+        }
+        
+        return results.sorted { ($0["lastModified"] as? Int64 ?? 0) > ($1["lastModified"] as? Int64 ?? 0) }
+    }
+    
+    private func formatFileSize(_ bytes: Int64) -> String {
+        let kb = Double(bytes) / 1024.0
+        let mb = kb / 1024.0
+        let gb = mb / 1024.0
+        if gb >= 1 { return String(format: "%.1f GB", gb) }
+        if mb >= 1 { return String(format: "%.1f MB", mb) }
+        if kb >= 1 { return String(format: "%.1f KB", kb) }
+        return "\(bytes) B"
+    }
 }

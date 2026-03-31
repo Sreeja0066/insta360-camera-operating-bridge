@@ -27,12 +27,12 @@ class VideoExporter(private val context: Context) {
         const val TAG = "VideoExporter"
 
         // Export presets
-        const val WIDTH_8K = 7680
-        const val HEIGHT_8K = 3840
+        const val WIDTH_4K = 3840
+        const val HEIGHT_4K = 1920
         const val WIDTH_1080P = 1920
         const val HEIGHT_1080P = 960
         const val FPS = 30
-        const val BITRATE_8K = 100_000_000    // 100 Mbps
+        const val BITRATE_4K = 60_000_000    // 60 Mbps for 4K
         const val BITRATE_1080P = 20_000_000  // 20 Mbps for 1080P
     }
 
@@ -86,10 +86,10 @@ class VideoExporter(private val context: Context) {
             val bitrate: Int
 
             when (resolution) {
-                "8K" -> {
-                    width = WIDTH_8K
-                    height = HEIGHT_8K
-                    bitrate = BITRATE_8K
+                "4K" -> {
+                    width = WIDTH_4K
+                    height = HEIGHT_4K
+                    bitrate = BITRATE_4K
                 }
                 "1080P" -> {
                     width = WIDTH_1080P
@@ -175,8 +175,8 @@ class VideoExporter(private val context: Context) {
     }
 
     /**
-     * Export a recording at both 8K and 1080P resolutions
-     * Exports 8K first, then 1080P sequentially
+     * Export a recording at both 4K and 1080P resolutions
+     * Exports 4K first, then 1080P sequentially
      *
      * @param filePaths Array of .insv file paths from the camera
      * @param recordingId Unique recording ID for naming
@@ -187,8 +187,8 @@ class VideoExporter(private val context: Context) {
         recordingId: String,
         callback: ExportCallback
     ) {
-        // Export 8K first
-        exportVideo(filePaths, "8K", recordingId, object : ExportCallback {
+        // Export 4K first
+        exportVideo(filePaths, "4K", recordingId, object : ExportCallback {
             override fun onProgress(progress: Float, resolution: String) {
                 callback.onProgress(progress, resolution)
             }
@@ -196,15 +196,15 @@ class VideoExporter(private val context: Context) {
             override fun onSuccess(outputPath: String, resolution: String) {
                 callback.onSuccess(outputPath, resolution)
 
-                // After 8K is done, export 1080P
-                Log.d(TAG, "8K export complete, starting 1080P export...")
+                // After 4K is done, export 1080P
+                Log.d(TAG, "4K export complete, starting 1080P export...")
                 exportVideo(filePaths, "1080P", recordingId, callback)
             }
 
             override fun onFailed(error: String, resolution: String) {
                 callback.onFailed(error, resolution)
-                // Still try 1080P even if 8K fails
-                Log.d(TAG, "8K export failed, still trying 1080P...")
+                // Still try 1080P even if 4K fails
+                Log.d(TAG, "4K export failed, still trying 1080P...")
                 exportVideo(filePaths, "1080P", recordingId, callback)
             }
         })
@@ -220,10 +220,11 @@ class VideoExporter(private val context: Context) {
         if (exportDir.exists()) {
             exportDir.listFiles()?.filter { it.extension == "mp4" }?.forEach { file ->
                 val resolution = when {
-                    file.name.contains("_8K_") -> "8K (7680×3840)"
+                    file.name.contains("_4K_") -> "4K (3840×1920)"
                     file.name.contains("_1080P_") -> "1080P (1920×960)"
                     else -> "Unknown"
                 }
+ Riverside: file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/insta360-bridge-flutter/android/app/src/main/kotlin/com/example/insta360_bridge/VideoExporter.kt:223
 
                 files.add(mapOf(
                     "name" to file.name,
