@@ -9,6 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+import 'package:flutter/rendering.dart';
 import 'insta360_service.dart';
 
 // ===== DESIGN TOKENS (from companion app styles.css) =====
@@ -544,13 +545,6 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
-  void _stopScan() async {
-    _log('Stopping scan...');
-    await Insta360Service.instance.stopScan();
-    if (mounted) {
-      setState(() => isScanning = false);
-    }
-  }
 
   void _connect(String ssid, {bool isSaved = false}) {
     final controller = TextEditingController(text: '88888888');
@@ -631,7 +625,6 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   void _addNewCameraIOS() {
- Riverside: file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/insta360-bridge-flutter/lib/main.dart:793
     // Show dialog explaining how to add a new camera
     showDialog(
       context: context,
@@ -860,7 +853,6 @@ class _CameraPageState extends State<CameraPage> {
                     ],
                   ],
                 ),
- Riverside: file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/insta360-bridge-flutter/lib/main.dart:821
                 // iOS: Add New Camera button
                 if (_isIOS) ...[
                   const SizedBox(height: 8),
