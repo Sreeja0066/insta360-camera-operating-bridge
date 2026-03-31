@@ -224,8 +224,6 @@ class VideoExporter(private val context: Context) {
                     file.name.contains("_1080P_") -> "1080P (1920×960)"
                     else -> "Unknown"
                 }
- Riverside: file:///c:/Users/SreejaSaiLachannagar/Desktop/insta360-camera-operating-bridge/fake-camera-stream/insta360-bridge-flutter/android/app/src/main/kotlin/com/example/insta360_bridge/VideoExporter.kt:223
-
                 files.add(mapOf(
                     "name" to file.name,
                     "path" to file.absolutePath,
