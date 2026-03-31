@@ -71,7 +71,7 @@ class DriveUploader: NSObject {
             driveFile.parents = [folderID]
             
             // 3. Create upload parameters
-            let uploadParameters = GTLRUploadParameters(url: fileURL, mimeType: "application/octet-stream")
+            let uploadParameters = GTLRUploadParameters(fileURL: fileURL, mimeType: "application/octet-stream")
             
             // 4. Execute upload
             let query = GTLRDriveQuery_FilesCreate.query(withObject: driveFile, uploadParameters: uploadParameters)

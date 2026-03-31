@@ -194,19 +194,20 @@ class Insta360Channel: NSObject, FlutterPlugin {
             result(nil)
             return
         }
-        INSCameraManager.shared().commandManager.stopCapture { (error: Error?) in
+        // stopCapture in B-end SDK usually doesn't take a trailing closure or expects a specific completion label
+        INSCameraManager.shared().commandManager.stopCapture(completion: { (error: Error?) in
             if let error = error {
                 self.invokeDartEvent("onRecordingFailed", arguments: ["reason": error.localizedDescription])
             } else {
                 self.invokeDartEvent("onRecordingStopped")
             }
-        }
+        })
         result(nil)
     }
     
     private func exportRecording(recordingId: String, result: @escaping FlutterResult) {
-        // Fetch files from camera via B-end command module
-        INSCameraManager.shared().commandManager.getAllFiles(with: .all) { (error, fileList) in
+        // Fetch files from camera via B-end command module (standard B-end method)
+        INSCameraManager.shared().commandManager.cameraFileList { (error, fileList) in
             guard let fileList = fileList else {
                 self.invokeDartEvent("onExportFailed", arguments: ["error": "No files found on camera", "resolution": "all"])
                 result(FlutterError(code: "FAILED", message: "No files found", details: nil))

@@ -1,5 +1,6 @@
 import Foundation
 import INSCameraSDK
+import INSCoreMedia
 
 /**
  * VideoExporter — Handles post-processing and export of Insta360 recordings on iOS.
@@ -43,7 +44,7 @@ class VideoExporter: NSObject {
     
     private func exportSingleResolution(recordingId: String, paths: [String], resolution: String, progress: @escaping (Float) -> Void, completion: @escaping (String?, Error?) -> Void) {
         
-        // Convert paths to INSWork objects
+        // Convert paths to INSWork objects - Use explicit INSWork if possible
         let works = paths.compactMap { INSWork(path: $0) }
         guard !works.isEmpty else {
             completion(nil, NSError(domain: "VideoExporter", code: 404, userInfo: [NSLocalizedDescriptionKey: "No valid works found"]))
@@ -67,9 +68,9 @@ class VideoExporter: NSObject {
             options.bitrate = 20_000_000
         }
         
-        // Stabilization and Stitching
-        options.stabType = .auto
-        options.exportMode = .panorama
+        // Stabilization and Stitching - Use explicit enums
+        options.stabType = INSStabType.auto
+        options.exportMode = INSExportMode.panorama
         options.isDynamicStitch = true
         options.isDePurpleFilterOn = true
         
