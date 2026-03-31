@@ -1,6 +1,5 @@
 import Foundation
 import INSCameraSDK
-import INSCoreMedia
 
 /**
  * VideoExporter — Handles post-processing and export of Insta360 recordings on iOS.
