@@ -187,10 +187,26 @@ class Insta360Channel: NSObject, FlutterPlugin {
         }
         result(nil)
     }
+
+    private func stopRecording(result: @escaping FlutterResult) {
+        if demoMode {
+            invokeDartEvent("onRecordingStopped")
+            result(nil)
+            return
+        }
+        INSCameraManager.shared().commandManager.stopCapture { (error: Error?) in
+            if let error = error {
+                self.invokeDartEvent("onRecordingFailed", arguments: ["reason": error.localizedDescription])
+            } else {
+                self.invokeDartEvent("onRecordingStopped")
+            }
+        }
+        result(nil)
+    }
     
     private func exportRecording(recordingId: String, result: @escaping FlutterResult) {
-        // Need to find the .insv files from the camera first
-        INSCameraManager.shared().commandManager.fetchCameraFileList { (error, fileList) in
+        // Fetch files from camera via B-end command module
+        INSCameraManager.shared().commandManager.getAllFiles(with: .all) { (error, fileList) in
             guard let fileList = fileList else {
                 self.invokeDartEvent("onExportFailed", arguments: ["error": "No files found on camera", "resolution": "all"])
                 result(FlutterError(code: "FAILED", message: "No files found", details: nil))
@@ -244,14 +260,14 @@ class Insta360Channel: NSObject, FlutterPlugin {
         var results = [[String: Any]]()
         
         let fileManager = FileManager.default
-        guard let files = try? fileManager.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey], options: .skippingHiddenFiles) else {
+        guard let files = try? fileManager.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.contentModificationDateKey, .fileSizeKey], options: .skipsHiddenFiles) else {
             return []
         }
         
         for fileURL in files where fileURL.pathExtension == "mp4" {
             let attr = try? fileManager.attributesOfItem(atPath: fileURL.path)
-            let size = attr?[.size] as? Int64 ?? 0
-            let date = attr?[.modificationDate] as? Date ?? Date()
+            let size = attr?[FileAttributeKey.size] as? Int64 ?? 0
+            let date = attr?[FileAttributeKey.modificationDate] as? Date ?? Date()
             
             let resolution = fileURL.lastPathComponent.contains("_4K_") ? "4K (3840×1920)" : "1080p (1920×960)"
             

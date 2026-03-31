@@ -15,6 +15,8 @@
 		74858FB31ED2DC5600515810 /* BackgroundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FB21ED2DC5600515810 /* BackgroundManager.swift */; };
 		AA111AA11AA111AA00AA1111 /* WifiHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA111AA21AA111AA00AA1111 /* WifiHelper.swift */; };
 		AA111AA31AA111AA00AA1111 /* RecordingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA111AA41AA111AA00AA1111 /* RecordingManager.swift */; };
+		BB222AA12AA111AA00AA2222 /* VideoExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB222AA22AA111AA00AA2222 /* VideoExporter.swift */; };
+		CC333AA13AA111AA00AA3333 /* DriveUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC333AA23AA111AA00AA3333 /* DriveUploader.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
@@ -55,6 +57,8 @@
 		74858FB21ED2DC5600515810 /* BackgroundManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundManager.swift; sourceTree = "<group>"; };
 		AA111AA21AA111AA00AA1111 /* WifiHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WifiHelper.swift; sourceTree = "<group>"; };
 		AA111AA41AA111AA00AA1111 /* RecordingManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordingManager.swift; sourceTree = "<group>"; };
+		BB222AA22AA111AA00AA2222 /* VideoExporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoExporter.swift; sourceTree = "<group>"; };
+		CC333AA23AA111AA00AA3333 /* DriveUploader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DriveUploader.swift; sourceTree = "<group>"; };
 		AA111AA51AA111AA00AA1111 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
@@ -129,6 +133,8 @@
 				74858FB21ED2DC5600515810 /* BackgroundManager.swift */,
 				AA111AA21AA111AA00AA1111 /* WifiHelper.swift */,
 				AA111AA41AA111AA00AA1111 /* RecordingManager.swift */,
+				BB222AA22AA111AA00AA2222 /* VideoExporter.swift */,
+				CC333AA23AA111AA00AA3333 /* DriveUploader.swift */,
 				AA111AA51AA111AA00AA1111 /* Runner.entitlements */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 			);
@@ -290,6 +296,8 @@
 				74858FB31ED2DC5600515810 /* BackgroundManager.swift in Sources */,
 				AA111AA11AA111AA00AA1111 /* WifiHelper.swift in Sources */,
 				AA111AA31AA111AA00AA1111 /* RecordingManager.swift in Sources */,
+				BB222AA12AA111AA00AA2222 /* VideoExporter.swift in Sources */,
+				CC333AA13AA111AA00AA3333 /* DriveUploader.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
