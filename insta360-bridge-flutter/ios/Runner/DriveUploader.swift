@@ -1,6 +1,4 @@
 import Foundation
-import AppAuth
-import GoogleAPIClientForREST_Drive
 
 /**
  * DriveUploader — Handles native iOS Google Drive uploads in the background.

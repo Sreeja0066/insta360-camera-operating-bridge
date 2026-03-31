@@ -1,7 +1,6 @@
 import Flutter
 import UIKit
 import INSCameraSDK
-import AppAuth
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
