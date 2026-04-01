@@ -229,8 +229,16 @@ class Insta360Channel: NSObject, FlutterPlugin {
             // Explicitly handling the optional Swift array: [any INSCameraBaseFileInfo]?
             print("DEBUG: files type is \(type(of: fileList.cameraResources))")
             let lastFileObject = fileList.cameraResources?.last
-            let lastFile = (lastFileObject as? INSCameraBaseFileInfo)?.filePath ?? ""
-            let paths = [lastFile]
+            print("DEBUG: lastFileObject type is \(type(of: lastFileObject))")
+            
+            var lastPath = ""
+            if let video = lastFileObject as? INSCameraVideoFileInfo {
+                lastPath = video.filePath ?? ""
+            } else if let photo = lastFileObject as? INSCameraPhotoFileInfo {
+                lastPath = photo.filePath ?? ""
+            }
+            
+            let paths = [lastPath]
             
             VideoExporter.shared.exportBothResolutions(recordingId: recordingId, filePaths: paths) { progress, res in
                 let pct = Int(progress * 100)
