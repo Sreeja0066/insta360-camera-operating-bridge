@@ -21,7 +21,7 @@ class DriveUploader: NSObject {
         super.init()
         loadAuthState()
         if let authState = authState {
-            driveService.authorizer = GTMAppAuthFetcherAuthorization(authState: authState)
+            driveService.authorizer = GTMAuthSession(authState: authState)
         }
     }
     
@@ -32,7 +32,7 @@ class DriveUploader: NSObject {
         if let state = state {
             let data = NSKeyedArchiver.archivedData(withRootObject: state)
             UserDefaults.standard.set(data, forKey: "googleDriveAuthState")
-            driveService.authorizer = GTMAppAuthFetcherAuthorization(authState: state)
+            driveService.authorizer = GTMAuthSession(authState: state)
         } else {
             UserDefaults.standard.removeObject(forKey: "googleDriveAuthState")
             driveService.authorizer = nil
