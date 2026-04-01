@@ -225,8 +225,9 @@ class Insta360Channel: NSObject, FlutterPlugin {
                 return
             }
             
-            // Access via cameraResources property as expected by INSCameraResources type
-            let lastFile = fileList.cameraResources.lastObject as? String ?? ""
+            // For B-end SDK, fileList contains INSCameraBaseFileInfo objects
+            let lastFileObject = fileList.last
+            let lastFile = (lastFileObject as? INSCameraBaseFileInfo)?.filePath ?? ""
             let paths = [lastFile]
             
             VideoExporter.shared.exportBothResolutions(recordingId: recordingId, filePaths: paths) { progress, res in
