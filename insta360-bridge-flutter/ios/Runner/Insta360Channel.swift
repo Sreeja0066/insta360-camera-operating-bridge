@@ -225,8 +225,9 @@ class Insta360Channel: NSObject, FlutterPlugin {
                 return
             }
             
-            // For B-end SDK, fileList contains INSCameraBaseFileInfo objects
-            let lastFileObject = fileList.last
+            // In the B-end SDK, res (fileList) is an INSCameraResources object.
+            // It has an array property called cameraResources.
+            let lastFileObject = fileList.cameraResources.lastObject
             let lastFile = (lastFileObject as? INSCameraBaseFileInfo)?.filePath ?? ""
             let paths = [lastFile]
             
