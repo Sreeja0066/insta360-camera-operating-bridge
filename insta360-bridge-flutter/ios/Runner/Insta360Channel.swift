@@ -219,7 +219,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
         }
         
         commandManager.fetchVideoList(with: options) { (error, res) in
-            guard let fileList = res?.cameraResources else {
+            guard let fileList = res else {
                 self.invokeDartEvent("onExportFailed", arguments: ["error": "No files found on camera", "resolution": "all"])
                 result(FlutterError(code: "FAILED", message: "No files found", details: nil))
                 return
