@@ -232,10 +232,8 @@ class Insta360Channel: NSObject, FlutterPlugin {
             print("DEBUG: lastFileObject type is \(type(of: lastFileObject))")
             
             var lastPath = ""
-            if let video = lastFileObject as? INSCameraVideoFileInfo {
-                lastPath = video.filePath ?? ""
-            } else if let photo = lastFileObject as? INSCameraPhotoFileInfo {
-                lastPath = photo.filePath ?? ""
+            if let fileInfo = lastFileObject as? INSCameraFileInfo {
+                lastPath = fileInfo.filePath ?? ""
             }
             
             let paths = [lastPath]
