@@ -211,7 +211,14 @@ class Insta360Channel: NSObject, FlutterPlugin {
         // Use the Wi-Fi socket's command manager for file listing in Wi-Fi mode
         let options = INSGetFileListOptions()
         options.type = .camera
-        INSCameraManager.socket().commandsImpl.fetchVideoList(with: options) { (error, res) in
+        
+        guard let commandManager = INSCameraManager.socket().commandsImpl as? INSCameraSimpleUSBCommands else {
+            self.invokeDartEvent("onExportFailed", arguments: ["error": "Command manager not available", "resolution": "all"])
+            result(FlutterError(code: "FAILED", message: "Command manager not available", details: nil))
+            return
+        }
+        
+        commandManager.fetchVideoList(with: options) { (error, res) in
             guard let fileList = res?.cameraResources else {
                 self.invokeDartEvent("onExportFailed", arguments: ["error": "No files found on camera", "resolution": "all"])
                 result(FlutterError(code: "FAILED", message: "No files found", details: nil))
