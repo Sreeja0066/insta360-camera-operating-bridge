@@ -1,6 +1,8 @@
 import Flutter
 import UIKit
 import INSCameraSDK
+import INSCameraServiceSDK
+import INSCoreMedia
 
 class Insta360Channel: NSObject, FlutterPlugin {
     private var channel: FlutterMethodChannel?
@@ -32,7 +34,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
             if status == "CONNECTED" {
                 // For B-end SDK, we use setup() after Wi-Fi is connected
                 print("[Insta360Channel] WiFi connected, triggering SDK camera setup")
-                INSCameraManager.socket().setup()
+                INSCameraManager.socketManager().setup()
             }
         }
     }
@@ -45,7 +47,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
         case "getStatus":
             result(getCameraStatus())
         case "connectCamera":
-            INSCameraManager.socket().setup()
+            INSCameraManager.socketManager().setup()
             result(nil)
         case "getExportedFiles":
             let files = getExportedFilesList()
@@ -147,7 +149,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
     private func getCameraStatus() -> String {
         if demoMode { return "CONNECTED" }
         
-        let state = INSCameraManager.socket().cameraState
+        let state = INSCameraManager.socketManager().cameraState
         switch state {
         case .connected:
             return "CONNECTED"
@@ -207,7 +209,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
     
     private func exportRecording(recordingId: String, result: @escaping FlutterResult) {
         // Use the Wi-Fi socket's command manager for file listing in Wi-Fi mode
-        INSCameraManager.socket().commandManager.fetchFileList(with: .allFiles) { (error, fileList) in
+        INSCameraManager.socketManager().commandsImpl.fetchFileList(with: .allFiles) { (error, fileList) in
             guard let fileList = fileList else {
                 self.invokeDartEvent("onExportFailed", arguments: ["error": "No files found on camera", "resolution": "all"])
                 result(FlutterError(code: "FAILED", message: "No files found", details: nil))
