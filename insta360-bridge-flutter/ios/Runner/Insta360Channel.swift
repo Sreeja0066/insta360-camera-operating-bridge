@@ -228,12 +228,16 @@ class Insta360Channel: NSObject, FlutterPlugin {
             // In the B-end SDK, res (fileList) is an INSCameraResources object.
             // Explicitly handling the optional Swift array: [any INSCameraBaseFileInfo]?
             print("DEBUG: files type is \(type(of: fileList.cameraResources))")
+            // DIAGNOSTIC STEP: Identifying correct iOS SDK property names in Codemagic logs
             let lastFileObject = fileList.cameraResources?.last
-            print("DEBUG: lastFileObject type is \(type(of: lastFileObject))")
+            print("DEBUG: lastFileObject is \(String(describing: lastFileObject))")
             
             var lastPath = ""
             if let fileInfo = lastFileObject as? INSCameraFileInfo {
-                lastPath = fileInfo.filePath ?? ""
+                // This will output all available properties to the Codemagic build log
+                print("DEBUG: fileInfo details: \(fileInfo)")
+                // Temporary empty string so the build can proceed and show the log
+                lastPath = "" 
             }
             
             let paths = [lastPath]
