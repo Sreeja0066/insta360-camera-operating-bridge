@@ -1,6 +1,7 @@
 package com.example.insta360_bridge
 
 import android.os.Handler
+import java.io.File
 import android.os.Looper
 import android.util.Log
 import com.arashivision.sdkcamera.camera.InstaCameraManager
@@ -32,6 +33,9 @@ class CameraControl : ICameraChangedCallback, ICaptureStatusListener, IPreviewSt
 
     var lastCapturedFilePaths: Array<out String>? = null
         private set
+
+    // Listener for Insta360Channel to receive file paths when capture finishes
+    var onCaptureFinishListener: ((Array<out String>?) -> Unit)? = null
 
     companion object {
         const val TAG = "CameraControl"
@@ -201,8 +205,14 @@ class CameraControl : ICameraChangedCallback, ICaptureStatusListener, IPreviewSt
 
     override fun onCaptureFinish(filePaths: Array<out String>?) {
         Log.d(TAG, "onCaptureFinish — paths=${filePaths?.joinToString()}")
+          filePaths?.forEachIndexed { i, path ->
+        Log.e("FILEPATH_DEBUG", "Path[$i] = $path")
+        Log.e("FILEPATH_DEBUG", "File exists = ${File(path).exists()}")
+        Log.e("FILEPATH_DEBUG", "File size = ${File(path).length()} bytes")
+    }
         isRecording = false
         lastCapturedFilePaths = filePaths
+        onCaptureFinishListener?.invoke(filePaths)
         pendingStopCallback?.onSuccess()
         pendingStopCallback = null
     }

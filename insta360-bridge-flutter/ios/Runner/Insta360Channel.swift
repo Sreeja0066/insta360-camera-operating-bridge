@@ -59,6 +59,27 @@ class Insta360Channel: NSObject, FlutterPlugin {
             }
         case "getRecordings":
             result(recordingManager.getRecordings())
+        case "saveRecordingMetadata":
+            let saveArgs = call.arguments as? [String: Any] ?? [:]
+            let jsonStr = saveArgs["data"] as? String ?? ""
+            do {
+                try recordingManager.saveRecordingMetadata(jsonString: jsonStr)
+                invokeDartEvent("onMetadataSaved")
+                result(nil)
+            } catch {
+                invokeDartEvent("onMetadataSaveFailed", arguments: ["reason": error.localizedDescription])
+                result(FlutterError(code: "FAILED", message: error.localizedDescription, details: nil))
+            }
+        case "updateRecording":
+            let updateArgs = call.arguments as? [String: Any] ?? [:]
+            let recordingId = updateArgs["recordingId"] as? String ?? ""
+            let updatesJson = updateArgs["updates"] as? String ?? "{}"
+            do {
+                try recordingManager.updateRecording(id: recordingId, updatesJson: updatesJson)
+                result(nil)
+            } catch {
+                result(FlutterError(code: "FAILED", message: error.localizedDescription, details: nil))
+            }
         case "startRecording":
             startRecording(result: result)
         case "stopRecording":
@@ -120,6 +141,8 @@ class Insta360Channel: NSObject, FlutterPlugin {
             exportRecording(recordingId: recordingId, result: result)
             
         // Google Drive — placeholder
+        case "getDriveSignInStatus":
+            result(DriveUploader.shared.getSignedInEmail() ?? "")
         case "signInToDrive":
             signInToDrive(result: result)
         case "uploadToDrive":
@@ -174,7 +197,7 @@ class Insta360Channel: NSObject, FlutterPlugin {
         let options = INSCaptureOptions()
         
         // In the B-end SDK, capture methods are on the commandManager
-        INSCameraManager.shared().commandManager.startCapture(with: options) { (error: Error?) in
+        INSCameraManager.socket().commandManager.startCapture(with: options) { (error: Error?) in
             if let error = error {
                 print("[Insta360Channel] startCapture error: \(error.localizedDescription)")
                 DispatchQueue.main.async {
@@ -197,63 +220,103 @@ class Insta360Channel: NSObject, FlutterPlugin {
             return
         }
         let options = INSCaptureOptions()
-        INSCameraManager.shared().commandManager.stopCapture(with: options) { (error, info) in
+        INSCameraManager.socket().commandManager.stopCapture(with: options) { (error, info) in
             if let error = error {
                 self.invokeDartEvent("onRecordingFailed", arguments: ["reason": error.localizedDescription])
             } else {
                 self.invokeDartEvent("onRecordingStopped")
+                // After stop succeeds, fetch file list from camera and send paths to Flutter
+                self.fetchLastCapturedFilePaths()
             }
         }
         result(nil)
     }
     
-    private func exportRecording(recordingId: String, result: @escaping FlutterResult) {
-        // Use the Wi-Fi socket's command manager for file listing in Wi-Fi mode
-        let options = INSGetFileListOptions()
-        options.type = .camera
+    private func fetchLastCapturedFilePaths() {
+        let listOptions = INSGetFileListOptions()
+        listOptions.type = .camera
         
-        guard let commandManager = INSCameraManager.socket().commandsImpl as? INSCameraSimpleUSBCommands else {
-            self.invokeDartEvent("onExportFailed", arguments: ["error": "Command manager not available", "resolution": "all"])
-            result(FlutterError(code: "FAILED", message: "Command manager not available", details: nil))
-            return
-        }
-        
-        commandManager.fetchVideoList(with: options) { (error, res) in
-            guard let fileList = res else {
-                self.invokeDartEvent("onExportFailed", arguments: ["error": "No files found on camera", "resolution": "all"])
-                result(FlutterError(code: "FAILED", message: "No files found", details: nil))
+        INSCameraManager.socket().commandManager.fetchVideoList(with: listOptions) { (error, res) in
+            guard let fileList = res, let resources = fileList.cameraResources, !resources.isEmpty else {
+                print("[Insta360Channel] fetchLastCapturedFilePaths: No files found")
+                self.invokeDartEvent("onCaptureFilePaths", arguments: ["paths": [String]()])
                 return
             }
             
-            // In the B-end SDK, res (fileList) is an INSCameraResources object.
-            // Explicitly handling the optional Swift array: [any INSCameraBaseFileInfo]?
-            print("DEBUG: files type is \(type(of: fileList.cameraResources))")
-            // DIAGNOSTIC STEP: Identifying correct iOS SDK property names in Codemagic logs
-            let lastFileObject = fileList.cameraResources?.last
-            print("DEBUG: lastFileObject is \(String(describing: lastFileObject))")
-            
-            var lastPath = ""
-            if let fileInfo = lastFileObject as? INSCameraFileInfo {
-                // This will output all available properties to the Codemagic build log
-                print("DEBUG: fileInfo details: \(fileInfo)")
-                // Temporary empty string so the build can proceed and show the log
-                lastPath = "" 
+            // Get the last two files (front + rear for 360 video)
+            var paths = [String]()
+            let lastFiles = resources.suffix(2)
+            for file in lastFiles {
+                if let fileInfo = file as? INSCameraBaseFileInfo, let uri = fileInfo.uri {
+                    print("[Insta360Channel] Captured file: \(uri)")
+                    paths.append(uri)
+                }
             }
             
-            let paths = [lastPath]
-            
-            VideoExporter.shared.exportBothResolutions(recordingId: recordingId, filePaths: paths) { progress, res in
-                let pct = Int(progress * 100)
-                self.invokeDartEvent("onExportProgress", arguments: ["progress": pct, "resolution": res])
-            } completion: { path4K, path1080p, error in
-                if let error = error {
-                    self.invokeDartEvent("onExportFailed", arguments: ["error": error.localizedDescription, "resolution": "all"])
-                    result(FlutterError(code: "FAILED", message: error.localizedDescription, details: nil))
-                } else {
-                    self.invokeDartEvent("onExportSuccess", arguments: ["path": path1080p ?? "", "resolution": "1080p"])
-                    self.invokeDartEvent("onExportSuccess", arguments: ["path": path4K ?? "", "resolution": "4K"])
-                    result("Export successful")
+            print("[Insta360Channel] Sending \(paths.count) file paths to Flutter")
+            self.invokeDartEvent("onCaptureFilePaths", arguments: ["paths": paths])
+        }
+    }
+    
+    private func exportRecording(recordingId: String, result: @escaping FlutterResult) {
+        // Read rawFilePaths from recordings.json (survives restarts)
+        var filePaths = [String]()
+        
+        let recordingsJson = recordingManager.getRecordings()
+        if let data = recordingsJson.data(using: .utf8),
+           let recordings = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+            for rec in recordings {
+                if rec["id"] as? String == recordingId {
+                    if let paths = rec["rawFilePaths"] as? [String] {
+                        filePaths = paths
+                    }
+                    break
                 }
+            }
+        }
+        
+        guard !filePaths.isEmpty else {
+            let msg = "No recording files found. Make sure to record first."
+            self.invokeDartEvent("onExportFailed", arguments: ["error": msg, "resolution": "all", "recordingId": recordingId])
+            result(FlutterError(code: "FAILED", message: msg, details: nil))
+            return
+        }
+        
+        // Send initial progress
+        self.invokeDartEvent("onExportProgress", arguments: ["progress": 0, "resolution": "4K", "recordingId": recordingId])
+        
+        VideoExporter.shared.exportBothResolutions(recordingId: recordingId, filePaths: filePaths) { progress, res in
+            let pct = Int(progress * 100)
+            self.invokeDartEvent("onExportProgress", arguments: ["progress": pct, "resolution": res, "recordingId": recordingId])
+        } completion: { path4K, path1080p, error in
+            if let error = error {
+                // Persist failure to native JSON
+                try? self.recordingManager.updateRecording(id: recordingId, updatesJson: "{\"exportStatus\":\"failed\"}")
+                
+                self.invokeDartEvent("onExportFailed", arguments: ["error": error.localizedDescription, "resolution": "all", "recordingId": recordingId])
+                result(FlutterError(code: "FAILED", message: error.localizedDescription, details: nil))
+            } else {
+                // Persist success to native JSON
+                var updates: [String: Any] = [
+                    "exportStatus": "done",
+                    "exportProgress": 100,
+                    "driveStatus": "pending"
+                ]
+                if let p4k = path4K { updates["exportedPath4K"] = p4k }
+                if let p1080 = path1080p { updates["exportedPath1080P"] = p1080 }
+                
+                if let data = try? JSONSerialization.data(withJSONObject: updates),
+                   let json = String(data: data, encoding: .utf8) {
+                    try? self.recordingManager.updateRecording(id: recordingId, updatesJson: json)
+                }
+                
+                if let p1080 = path1080p {
+                    self.invokeDartEvent("onExportSuccess", arguments: ["path": p1080, "resolution": "1080p", "recordingId": recordingId])
+                }
+                if let p4k = path4K {
+                    self.invokeDartEvent("onExportSuccess", arguments: ["path": p4k, "resolution": "4K", "recordingId": recordingId])
+                }
+                result("Export successful")
             }
         }
     }

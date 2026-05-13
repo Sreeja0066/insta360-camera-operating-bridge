@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'recording_model.dart';
 
 class Insta360Service {
   static const MethodChannel _channel = MethodChannel('com.noveloffice.insta360bridge/camera');
@@ -16,6 +17,11 @@ class Insta360Service {
   Stream<Map<String, dynamic>> get events => _eventsController.stream;
   
   bool isConnected = false;
+
+  // Track the last recording ID so we can associate file paths when they arrive
+  String? _lastRecordingId;
+  String? get lastRecordingId => _lastRecordingId;
+  set lastRecordingId(String? id) => _lastRecordingId = id;
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     if (call.method == 'onWifiConnected') {
@@ -95,6 +101,21 @@ class Insta360Service {
     final String? result = await _channel.invokeMethod<String>('getRecordings');
     if (result == null) return [];
     return jsonDecode(result);
+  }
+
+  // ===== NEW: Typed recordings via RecordingRepository =====
+
+  Future<List<RecordingModel>> getRecordingsTyped() async {
+    return await RecordingRepository.instance.loadFromNative(getRecordings);
+  }
+
+  // ===== NEW: Update a recording's fields in native JSON =====
+
+  Future<void> updateRecordingInNative(String id, Map<String, dynamic> updates) async {
+    await _channel.invokeMethod('updateRecording', {
+      'recordingId': id,
+      'updates': jsonEncode(updates),
+    });
   }
 
   // ===== GOOGLE DRIVE =====

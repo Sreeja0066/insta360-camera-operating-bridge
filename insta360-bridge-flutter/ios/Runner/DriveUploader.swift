@@ -50,6 +50,28 @@ class DriveUploader: NSObject {
         return authState?.isAuthorized ?? false
     }
     
+    func getSignedInEmail() -> String? {
+        guard let idToken = authState?.lastTokenResponse?.idToken else {
+            return nil
+        }
+        // JWT has 3 parts separated by dots: header.payload.signature
+        let parts = idToken.components(separatedBy: ".")
+        guard parts.count == 3 else { return nil }
+
+        // Base64 decode the payload
+        var base64 = parts[1]
+        // Pad to multiple of 4
+        let remainder = base64.count % 4
+        if remainder > 0 { base64 += String(repeating: "=", count: 4 - remainder) }
+
+        guard let data = Data(base64Encoded: base64),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let email = json["email"] as? String else {
+            return nil
+        }
+        return email
+    }
+    
     // MARK: - Upload Logic
     
     func upload(fileURL: URL, completion: @escaping (String?, Error?) -> Void) {

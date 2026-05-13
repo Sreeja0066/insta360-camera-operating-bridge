@@ -10,7 +10,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/foundation.dart';
 import 'insta360_service.dart';
+import 'recording_model.dart';
 
 // ===== DESIGN TOKENS (from companion app styles.css) =====
 class AppColors {
@@ -76,8 +78,6 @@ class _MainShellState extends State<MainShell> {
   String _driveEmail = '';
   late StreamSubscription _eventSub;
 
-  final _pages = const [0, 1, 2, 3];
-
   @override
   void initState() {
     super.initState();
@@ -99,13 +99,55 @@ class _MainShellState extends State<MainShell> {
       } else if (e == 'onDriveUploadQueued') {
         _showToast('No internet — queued for upload ⏳');
       } else if (e == 'onExportSuccess') {
+        final path = event['data']?['path'] ?? '';
+        final resolution = event['data']?['resolution'] ?? '';
+        final recordingId = event['data']?['recordingId'] ?? '';
+        // Update in-memory recording model
+        if (recordingId.isNotEmpty) {
+          RecordingRepository.instance.updateExportSuccess(recordingId, path, resolution);
+          // Persist to native JSON
+          Insta360Service.instance.updateRecordingInNative(recordingId, {
+            'exportStatus': 'done',
+            'exportProgress': 100,
+            if (resolution.toLowerCase().contains('4k')) 'exportedPath4K': path,
+            if (!resolution.toLowerCase().contains('4k')) 'exportedPath1080P': path,
+          });
+        }
         // Auto-upload to Drive after export if linked
-        if (_driveEmail.isNotEmpty) {
-          final path = event['data']?['path'] ?? '';
-          if (path.isNotEmpty) {
-            _showToast('Uploading to Drive... ☁️');
-            Insta360Service.instance.uploadToDrive(path);
-          }
+        if (_driveEmail.isNotEmpty && path.isNotEmpty) {
+          _showToast('Uploading to Drive... ☁️');
+          Insta360Service.instance.uploadToDrive(path);
+        }
+      } else if (e == 'onExportProgress') {
+        final progress = event['data']?['progress'] ?? 0;
+        final recordingId = event['data']?['recordingId'] ?? '';
+        if (recordingId.isNotEmpty) {
+          RecordingRepository.instance.updateExportProgress(recordingId, progress as int);
+        }
+      } else if (e == 'onExportFailed') {
+        final recordingId = event['data']?['recordingId'] ?? '';
+        final error = event['data']?['error'] ?? 'Unknown';
+        if (recordingId.isNotEmpty) {
+          RecordingRepository.instance.updateExportFailed(recordingId);
+          Insta360Service.instance.updateRecordingInNative(recordingId, {
+            'exportStatus': 'failed',
+          });
+        }
+        _showToast('Export failed: $error');
+      } else if (e == 'onCaptureFilePaths') {
+        // File paths received from native after recording stopped
+        final paths = (event['data']?['paths'] as List<dynamic>?)?.cast<String>() ?? [];
+        final lastId = Insta360Service.instance.lastRecordingId;
+        if (lastId != null && paths.isNotEmpty) {
+          RecordingRepository.instance.updateRawFilePaths(lastId, paths);
+          // Persist paths to native JSON
+          Insta360Service.instance.updateRecordingInNative(lastId, {
+            'rawFilePaths': paths,
+          }).then((_) {
+             // AUTO-TRIGGER EXPORT
+             _showToast('Video files captured. Starting export... ⚙️');
+             Insta360Service.instance.exportRecording(lastId);
+          });
         }
       }
       _pollStatus();
@@ -215,6 +257,40 @@ class _MainShellState extends State<MainShell> {
     }
   }
 
+  void _injectTestRecording() {
+    Navigator.pop(context); // close drawer
+    final recId = 'rec_test_${DateTime.now().millisecondsSinceEpoch}';
+    
+    // NOTE: For testing, push .insv files to this path on your phone using Device Explorer
+    // Android: /sdcard/Android/data/com.example.insta360_bridge/files/Movies/Insta360Bridge/
+    // iOS: Documents/Insta360Bridge/Raw/
+    
+    final metadata = {
+      'id': recId,
+      'timestamp': DateTime.now().toIso8601String(),
+      'duration': 15,
+      'resolution': '4K/30fps',
+      'stabilization': 'FlowState',
+      'startPoint': {'x': 150.0, 'y': 250.0},
+      'stopPoint': {'x': 350.0, 'y': 450.0},
+      'rawFilePaths': [
+        'vid_test_001.insv',
+        'vid_test_002.insv',
+      ],
+      'exportStatus': 'pending',
+      'exportProgress': 0,
+      'exportedPath4K': null,
+      'exportedPath1080P': null,
+      'driveStatus': 'notStarted',
+      'driveFileId': null,
+    };
+    
+    Insta360Service.instance.lastRecordingId = recId;
+    Insta360Service.instance.invokeMethod('saveRecordingMetadata', {'data': jsonEncode(metadata)});
+    
+    _showToast('Test recording injected! ✅ Go to Saved Videos.');
+  }
+
   @override
   void dispose() {
     _eventSub.cancel();
@@ -316,6 +392,10 @@ class _MainShellState extends State<MainShell> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
             ),
+            if (kDebugMode) ...[
+              const Divider(color: AppColors.border, height: 1),
+              _drawerItem(Icons.bug_report, 'DEBUG: Inject Recording', _injectTestRecording),
+            ],
             const Divider(color: AppColors.border, height: 1),
             const Spacer(),
             Padding(
@@ -1055,13 +1135,25 @@ class _LayoutPageState extends State<LayoutPage> {
   }
 
   void _saveMetadata() {
+    final recId = 'rec_${DateTime.now().millisecondsSinceEpoch}';
     final metadata = {
-      'id': 'rec_${DateTime.now().millisecondsSinceEpoch}',
+      'id': recId,
       'timestamp': DateTime.now().toIso8601String(),
       'duration': _seconds,
+      'resolution': '4K/30fps',
+      'stabilization': 'FlowState',
       'startPoint': startPoint != null ? {'x': startPoint!.dx, 'y': startPoint!.dy} : null,
       'stopPoint': stopPoint != null ? {'x': stopPoint!.dx, 'y': stopPoint!.dy} : null,
+      'rawFilePaths': <String>[],
+      'exportStatus': 'pending',
+      'exportProgress': 0,
+      'exportedPath4K': null,
+      'exportedPath1080P': null,
+      'driveStatus': 'notStarted',
+      'driveFileId': null,
     };
+    // Track this ID so onCaptureFilePaths can associate paths with it
+    Insta360Service.instance.lastRecordingId = recId;
     Insta360Service.instance.invokeMethod('saveRecordingMetadata', {'data': jsonEncode(metadata)});
   }
 
@@ -1405,7 +1497,7 @@ class MapPainter extends CustomPainter {
 }
 
 // ===================================================================
-// GALLERY PAGE
+// GALLERY PAGE — Shows recordings with Export/Watch/Retry buttons
 // ===================================================================
 class GalleryPage extends StatefulWidget {
   const GalleryPage({super.key});
@@ -1414,29 +1506,60 @@ class GalleryPage extends StatefulWidget {
 }
 
 class _GalleryPageState extends State<GalleryPage> {
-  List<Map<String, dynamic>> exportedFiles = [];
+  List<RecordingModel> recordings = [];
   bool isLoading = true;
+  late StreamSubscription _eventSub;
 
   @override
   void initState() {
     super.initState();
-    _loadExportedFiles();
+    _loadRecordings();
+    // Listen for export events to refresh UI
+    _eventSub = Insta360Service.instance.events.listen((event) {
+      if (!mounted) return;
+      final e = event['event'];
+      if (e == 'onExportProgress' || e == 'onExportSuccess' ||
+          e == 'onExportFailed' || e == 'onCaptureFilePaths' ||
+          e == 'onMetadataSaved') {
+        Future.delayed(const Duration(milliseconds: 50), () {
+          if (mounted) {
+            setState(() {
+              recordings = RecordingRepository.instance.recordings.toList();
+            });
+          }
+        });
+      }
+    });
   }
 
-  Future<void> _loadExportedFiles() async {
+  @override
+  void dispose() {
+    _eventSub.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadRecordings() async {
     if (!mounted) return;
     setState(() => isLoading = true);
     try {
-      final files = await Insta360Service.instance.getExportedFiles();
+      final recs = await Insta360Service.instance.getRecordingsTyped();
       if (!mounted) return;
       setState(() {
-        exportedFiles = files;
+        recordings = recs;
         isLoading = false;
       });
     } catch (e) {
-      debugPrint('Error loading files: $e');
+      debugPrint('Error loading recordings: $e');
       if (mounted) setState(() => isLoading = false);
     }
+  }
+
+  void _exportRecording(RecordingModel rec) {
+    setState(() {
+      RecordingRepository.instance.updateExportProgress(rec.id, 0);
+      recordings = RecordingRepository.instance.recordings.toList();
+    });
+    Insta360Service.instance.exportRecording(rec.id);
   }
 
   void _playVideo(String path, String name) {
@@ -1459,10 +1582,15 @@ class _GalleryPageState extends State<GalleryPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Saved Videos',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+                ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [Color(0xFF818CF8), Color(0xFFA78BFA)],
+                  ).createShader(bounds),
+                  child: const Text('Saved Videos',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+                ),
                 IconButton(
-                  onPressed: _loadExportedFiles,
+                  onPressed: _loadRecordings,
                   icon: const Icon(Icons.refresh, color: AppColors.textDim, size: 20),
                 ),
               ],
@@ -1470,15 +1598,15 @@ class _GalleryPageState extends State<GalleryPage> {
             const SizedBox(height: 16),
             Expanded(
               child: isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                : exportedFiles.isEmpty
+                ? const Center(child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2))
+                : recordings.isEmpty
                   ? _buildEmptyState()
                   : RefreshIndicator(
-                      onRefresh: _loadExportedFiles,
+                      onRefresh: _loadRecordings,
                       child: ListView.separated(
-                        itemCount: exportedFiles.length,
+                        itemCount: recordings.length,
                         separatorBuilder: (_, __) => const SizedBox(height: 12),
-                        itemBuilder: (_, i) => _buildExportedCard(exportedFiles[i]),
+                        itemBuilder: (_, i) => _buildRecordingCard(recordings[i]),
                       ),
                     ),
             ),
@@ -1493,23 +1621,18 @@ class _GalleryPageState extends State<GalleryPage> {
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         const Opacity(opacity: 0.6, child: Text('🎬', style: TextStyle(fontSize: 56))),
         const SizedBox(height: 12),
-        const Text('No exported videos yet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        const Text('No recordings yet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         const SizedBox(height: 4),
-        const Text('Export recordings from the Layout page to watch them here',
+        const Text('Record from the Layout page to see them here',
           style: TextStyle(fontSize: 13, color: AppColors.textDim), textAlign: TextAlign.center),
       ]),
     );
   }
 
-  Widget _buildExportedCard(Map<String, dynamic> file) {
-    final name = file['name'] ?? 'Unknown';
-    final res = file['resolution'] ?? 'N/A';
-    final size = file['sizeFormatted'] ?? '0 B';
-    final path = file['path'] ?? '';
-    final ts = file['lastModified'] != null 
-        ? DateTime.fromMillisecondsSinceEpoch(file['lastModified'] as int) 
-        : DateTime.now();
+  Widget _buildRecordingCard(RecordingModel rec) {
+    final ts = DateTime.tryParse(rec.timestamp) ?? DateTime.now();
     final dateStr = DateFormat('MMM d, yyyy · hh:mm a').format(ts);
+    final durationStr = '${(rec.duration ~/ 60).toString().padLeft(2, '0')}:${(rec.duration % 60).toString().padLeft(2, '0')}';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1519,41 +1642,171 @@ class _GalleryPageState extends State<GalleryPage> {
         border: Border.all(color: AppColors.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        // Header: ID + date
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Expanded(child: Text(name, 
+          Expanded(child: Text(rec.id,
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary, fontFamily: 'monospace'),
             overflow: TextOverflow.ellipsis,
           )),
           Text(dateStr, style: const TextStyle(fontSize: 11, color: AppColors.textDim)),
         ]),
         const SizedBox(height: 10),
+
+        // Info chips
         Row(children: [
-          _chip('📺', res),
+          _chip('⏱', durationStr),
           const SizedBox(width: 8),
-          _chip('💾', size),
+          _chip('🎥', rec.resolution),
+          const SizedBox(width: 8),
+          _chip('⚡', rec.stabilization),
         ]),
+        const SizedBox(height: 10),
+
+        // Export status badge
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: _statusColor(rec.exportStatus).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: _statusColor(rec.exportStatus).withOpacity(0.3)),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Container(width: 8, height: 8, decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _statusColor(rec.exportStatus),
+            )),
+            const SizedBox(width: 8),
+            Text(rec.exportStatusLabel, style: TextStyle(
+              fontSize: 12, fontWeight: FontWeight.w600,
+              color: _statusColor(rec.exportStatus),
+            )),
+          ]),
+        ),
+
+        // Progress bar (while exporting)
+        if (rec.exportStatus == ExportStatus.exporting) ...[
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: rec.exportProgress / 100.0,
+              backgroundColor: Colors.white.withOpacity(0.1),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              minHeight: 6,
+            ),
+          ),
+        ],
+
+        // Drive status
+        if (rec.driveStatusLabel.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(rec.driveStatusLabel, style: const TextStyle(fontSize: 11, color: AppColors.textDim)),
+        ],
+
         const Divider(color: AppColors.border, height: 24),
+
+        // Action buttons
         SizedBox(
           width: double.infinity,
           height: 44,
-          child: ElevatedButton(
-            onPressed: () => _playVideo(path, name),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              foregroundColor: AppColors.primary,
-              elevation: 0,
-              side: const BorderSide(color: AppColors.primaryGlow),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Icon(Icons.play_circle_filled, size: 18),
-              const SizedBox(width: 8),
-              const Text('WATCH NOW', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
-            ]),
-          ),
+          child: _buildActionButton(rec),
         ),
       ]),
     );
+  }
+
+  Widget _buildActionButton(RecordingModel rec) {
+    if (rec.exportStatus == ExportStatus.exporting) {
+      return ElevatedButton(
+        onPressed: null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary.withOpacity(0.1),
+          disabledBackgroundColor: AppColors.primary.withOpacity(0.05),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        child: Text('EXPORTING ${rec.exportProgress}%',
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary.withOpacity(0.5))),
+      );
+    }
+
+    if (rec.canWatch) {
+      return ElevatedButton(
+        onPressed: () => _playVideo(rec.watchPath, rec.id),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary.withOpacity(0.1),
+          foregroundColor: AppColors.primary,
+          elevation: 0,
+          side: const BorderSide(color: AppColors.primaryGlow),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(Icons.play_circle_filled, size: 18),
+          SizedBox(width: 8),
+          Text('WATCH NOW', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+        ]),
+      );
+    }
+
+    if (rec.exportStatus == ExportStatus.failed) {
+      return ElevatedButton(
+        onPressed: () => _exportRecording(rec),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.danger.withOpacity(0.1),
+          foregroundColor: AppColors.danger,
+          elevation: 0,
+          side: BorderSide(color: AppColors.danger.withOpacity(0.3)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(Icons.refresh, size: 18),
+          SizedBox(width: 8),
+          Text('RETRY EXPORT', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+        ]),
+      );
+    }
+
+    if (rec.canExport) {
+      return ElevatedButton(
+        onPressed: () => _exportRecording(rec),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF10B981).withOpacity(0.1),
+          foregroundColor: const Color(0xFF10B981),
+          elevation: 0,
+          side: BorderSide(color: const Color(0xFF10B981).withOpacity(0.3)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(Icons.file_download, size: 18),
+          SizedBox(width: 8),
+          Text('EXPORT NOW', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+        ]),
+      );
+    }
+
+    // No files — cannot export
+    return ElevatedButton(
+      onPressed: null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white.withOpacity(0.05),
+        disabledBackgroundColor: Colors.white.withOpacity(0.03),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      child: const Text('NO FILES AVAILABLE',
+        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textDim, letterSpacing: 0.5)),
+    );
+  }
+
+  Color _statusColor(ExportStatus status) {
+    switch (status) {
+      case ExportStatus.pending:
+        return const Color(0xFFF59E0B); // amber
+      case ExportStatus.exporting:
+        return AppColors.primary;
+      case ExportStatus.done:
+        return const Color(0xFF10B981); // green
+      case ExportStatus.failed:
+        return AppColors.danger;
+    }
   }
 
   Widget _chip(String icon, String label) {

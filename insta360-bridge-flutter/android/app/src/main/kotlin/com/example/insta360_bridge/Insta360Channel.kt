@@ -24,12 +24,20 @@ class Insta360Channel(
     private val mainHandler = Handler(Looper.getMainLooper())
     val wifiHelper = WifiHelper(activity)
     private var demoMode = false
+    private val fileWriteLock = Any()
     
     var bgService: Insta360BackgroundService? = null
 
     fun setService(service: Insta360BackgroundService) {
         this.bgService = service
         Log.d(TAG, "Background Service bound to Flutter Channel!")
+
+        // Wire CameraControl to send file paths to Flutter when capture finishes
+        service.cameraControl?.onCaptureFinishListener = { filePaths ->
+            val paths = filePaths?.toList() ?: emptyList()
+            Log.d(TAG, "onCaptureFinish received ${paths.size} file paths")
+            invokeDartEvent("onCaptureFilePaths", mapOf("paths" to paths))
+        }
     }
 
     init {
@@ -91,6 +99,11 @@ class Insta360Channel(
             "getExportedFiles" -> {
                 val files = bgService?.videoExporter?.getExportedFiles() ?: emptyList()
                 result.success(JSONArray(files).toString())
+            }
+            "updateRecording" -> {
+                val recordingId = call.argument<String>("recordingId") ?: ""
+                val updatesJson = call.argument<String>("updates") ?: "{}"
+                updateRecordingJson(recordingId, updatesJson, result)
             }
             "openWifiSettings" -> {
                 val intent = android.content.Intent(android.provider.Settings.ACTION_WIFI_SETTINGS)
@@ -198,32 +211,36 @@ class Insta360Channel(
     }
 
     private fun saveRecordingMetadata(jsonStr: String, result: Result) {
-        try {
-            val dir = File(activity.filesDir, "recordings")
-            if (!dir.exists()) dir.mkdirs()
+        synchronized(fileWriteLock) {
+            try {
+                val dir = File(activity.filesDir, "recordings")
+                if (!dir.exists()) dir.mkdirs()
 
-            val file = File(dir, "recordings.json")
-            val existingJson = if (file.exists()) file.readText() else "[]"
-            val recordings = JSONArray(existingJson)
+                val file = File(dir, "recordings.json")
+                val existingJson = if (file.exists()) file.readText() else "[]"
+                val recordings = JSONArray(existingJson)
 
-            recordings.put(JSONObject(jsonStr))
-            file.writeText(recordings.toString(2))
-            
-            invokeDartEvent("onMetadataSaved")
-            result.success(null)
-        } catch (e: Exception) {
-            val safeMsg = e.message ?: "Unknown error"
-            invokeDartEvent("onMetadataSaveFailed", mapOf("reason" to safeMsg))
-            result.error("FAILED", safeMsg, null)
+                recordings.put(JSONObject(jsonStr))
+                file.writeText(recordings.toString(2))
+                
+                invokeDartEvent("onMetadataSaved")
+                result.success(null)
+            } catch (e: Exception) {
+                val safeMsg = e.message ?: "Unknown error"
+                invokeDartEvent("onMetadataSaveFailed", mapOf("reason" to safeMsg))
+                result.error("FAILED", safeMsg, null)
+            }
         }
     }
 
     private fun getRecordings(): String {
-        return try {
-            val file = File(activity.filesDir, "recordings/recordings.json")
-            if (file.exists()) file.readText() else "[]"
-        } catch (e: Exception) {
-            "[]"
+        synchronized(fileWriteLock) {
+            return try {
+                val file = File(activity.filesDir, "recordings/recordings.json")
+                if (file.exists()) file.readText() else "[]"
+            } catch (e: Exception) {
+                "[]"
+            }
         }
     }
 
@@ -237,17 +254,48 @@ class Insta360Channel(
             result.error("NO_SERVICE", "Background service not bound yet", null)
             return
         }
-        val filePaths = bgService?.cameraControl?.lastCapturedFilePaths
+
+        // First try to read rawFilePaths from recordings.json (survives restarts)
+        var filePaths: Array<String>? = null
+        try {
+            val file = File(activity.filesDir, "recordings/recordings.json")
+            if (file.exists()) {
+                val recordings = JSONArray(file.readText())
+                for (i in 0 until recordings.length()) {
+                    val rec = recordings.getJSONObject(i)
+                    if (rec.optString("id") == recordingId) {
+                        val pathsArr = rec.optJSONArray("rawFilePaths")
+                        if (pathsArr != null && pathsArr.length() > 0) {
+                            filePaths = Array(pathsArr.length()) { pathsArr.getString(it) }
+                        }
+                        break
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error reading rawFilePaths from JSON: ${e.message}")
+        }
+
+        // Fallback to in-memory paths
+        if (filePaths == null || filePaths.isEmpty()) {
+            val memPaths = bgService?.cameraControl?.lastCapturedFilePaths
+            if (memPaths != null && memPaths.isNotEmpty()) {
+                filePaths = memPaths.map { it }.toTypedArray()
+            }
+        }
+
         if (filePaths == null || filePaths.isEmpty()) {
             val safeMsg = "No recording files found. Make sure to record first."
-            invokeDartEvent("onExportFailed", mapOf("error" to safeMsg, "resolution" to "all"))
+            invokeDartEvent("onExportFailed", mapOf("error" to safeMsg, "resolution" to "all", "recordingId" to recordingId))
             result.error("FAILED", safeMsg, null)
             return
         }
 
+        // Update status to exporting
+        invokeDartEvent("onExportProgress", mapOf("progress" to 0, "resolution" to "4K", "recordingId" to recordingId))
+
         mainHandler.post {
-            // Fix the "Array<out String>" variance issue by creating a typed copy
-            val pathsArray = filePaths.map { it }.toTypedArray()
+            val pathsArray = filePaths!!
             bgService?.videoExporter?.exportBothResolutions(
                 pathsArray,
                 recordingId,
@@ -255,11 +303,30 @@ class Insta360Channel(
                     override fun onProgress(progress: Float, resolution: String) {
                         val pct = (progress * 100).toInt()
                         bgService?.updateNotification("Exporting Video", "Processing $resolution: $pct%", pct)
-                        invokeDartEvent("onExportProgress", mapOf("progress" to pct, "resolution" to resolution))
+                        invokeDartEvent("onExportProgress", mapOf("progress" to pct, "resolution" to resolution, "recordingId" to recordingId))
                     }
 
                     override fun onSuccess(outputPath: String, resolution: String) {
-                        invokeDartEvent("onExportSuccess", mapOf("path" to outputPath, "resolution" to resolution))
+                        invokeDartEvent("onExportSuccess", mapOf(
+                            "path" to outputPath,
+                            "resolution" to resolution,
+                            "recordingId" to recordingId
+                        ))
+                        
+                        // Persist to JSON natively
+                        val updates = JSONObject()
+                        updates.put("exportStatus", "done")
+                        updates.put("exportProgress", 100)
+                        updates.put("driveStatus", "pending")
+                        if (resolution == "4K") updates.put("exportedPath4K", outputPath)
+                        if (resolution == "1080P") updates.put("exportedPath1080P", outputPath)
+                        
+                        updateRecordingJson(recordingId, updates.toString(), object : Result {
+                            override fun success(r: Any?) {}
+                            override fun error(c: String, m: String?, d: Any?) {}
+                            override fun notImplemented() {}
+                        })
+
                         if (resolution == "1080P") {
                             bgService?.updateNotification("Export Complete", "Videos are ready to upload.", -1)
                             result.success("Export Complete")
@@ -267,13 +334,64 @@ class Insta360Channel(
                     }
 
                     override fun onFailed(error: String, resolution: String) {
-                        invokeDartEvent("onExportFailed", mapOf("error" to error, "resolution" to resolution))
+                        invokeDartEvent("onExportFailed", mapOf(
+                            "error" to error, 
+                            "resolution" to resolution, 
+                            "recordingId" to recordingId
+                        ))
+                        
+                        // Persist failure
                         if (resolution == "1080P") {
+                            updateRecordingJson(recordingId, "{\"exportStatus\":\"failed\"}", object : Result {
+                                override fun success(r: Any?) {}
+                                override fun error(c: String, m: String?, d: Any?) {}
+                                override fun notImplemented() {}
+                            })
                             result.error("EXPORT_FAILED", error, null)
                         }
                     }
                 }
             )
+        }
+    }
+
+    private fun updateRecordingJson(recordingId: String, updatesJson: String, result: Result) {
+        synchronized(fileWriteLock) {
+            try {
+                val file = File(activity.filesDir, "recordings/recordings.json")
+                if (!file.exists()) {
+                    result.error("NOT_FOUND", "recordings.json does not exist", null)
+                    return
+                }
+
+                val recordings = JSONArray(file.readText())
+                val updates = JSONObject(updatesJson)
+                var found = false
+
+                for (i in 0 until recordings.length()) {
+                    val rec = recordings.getJSONObject(i)
+                    if (rec.optString("id") == recordingId) {
+                        // Merge updates into existing recording
+                        val keys = updates.keys()
+                        while (keys.hasNext()) {
+                            val key = keys.next()
+                            rec.put(key, updates.get(key))
+                        }
+                        recordings.put(i, rec)
+                        found = true
+                        break
+                    }
+                }
+
+                if (found) {
+                    file.writeText(recordings.toString(2))
+                    result.success(null)
+                } else {
+                    result.error("NOT_FOUND", "Recording $recordingId not found", null)
+                }
+            } catch (e: Exception) {
+                result.error("FAILED", e.message ?: "Unknown error", null)
+            }
         }
     }
 
